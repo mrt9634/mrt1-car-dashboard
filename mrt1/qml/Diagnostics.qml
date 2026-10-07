@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Controls.Basic
 
 Item {
     anchors.fill: parent
@@ -52,7 +53,7 @@ Item {
         }
 
         Rectangle {
-            Layout.fillWidth: true; Layout.preferredHeight: 150
+            Layout.fillWidth: true; Layout.preferredHeight: 220
             radius: 14; color: "#0b0f14"; border.color: "#1c2731"
             ColumnLayout {
                 anchors.fill: parent; anchors.margins: 16; spacing: 8
@@ -81,6 +82,26 @@ Item {
                 Label {
                     text: "READ ONLY — no CAN frames, MCU commands, flash or factory writes"
                     color: "#65717d"; font.pixelSize: 11
+                }
+                RowLayout {
+                    Layout.fillWidth: true
+                    Label { text: "BAUD"; color: "#aab4c0"; font.pixelSize: 11 }
+                    ComboBox {
+                        id: baudBox
+                        model: [9600, 19200, 38400, 57600, 115200, 125000, 250000, 500000]
+                        currentIndex: 4
+                        Layout.preferredWidth: 110
+                    }
+                    Button {
+                        text: "LISTEN FIRST"
+                        enabled: hardwareProbe.candidates.length > 0
+                        onClicked: serialProbe.openReadOnly(hardwareProbe.candidates[0], Number(baudBox.currentText))
+                    }
+                    Button { text: "CLOSE"; onClicked: serialProbe.close() }
+                }
+                Label {
+                    text: "Port: " + serialProbe.port + " • Baud: " + serialProbe.baud + " • " + serialProbe.status
+                    color: "#aab4c0"; font.pixelSize: 11; wrapMode: Text.Wrap; Layout.fillWidth: true
                 }
                 Label {
                     text: serialProbe.lastHex.length > 0 ? "RX HEX: " + serialProbe.lastHex : "RX HEX: waiting for data"
