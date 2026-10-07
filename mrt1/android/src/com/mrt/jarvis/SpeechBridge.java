@@ -9,6 +9,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.nio.charset.StandardCharsets;
@@ -84,9 +85,19 @@ public final class SpeechBridge {
     }
 
     public static void speak(Context context, String text, String localeTag) {
-        if (tts == null) tts = new TextToSpeech(context.getApplicationContext(), status -> {});
-        Locale locale = Locale.forLanguageTag(localeTag == null ? "fa-IR" : localeTag);
-        tts.setLanguage(locale);
+        if (tts == null) {
+            tts = new TextToSpeech(context.getApplicationContext(), status -> {});
+            tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                public void onStart(String id) {}
+                public void onDone(String id) { nativeTtsDone(); }
+                public void onError(String id) { nativeTtsDone(); }
+            });
+        }
+        Locale requested = Locale.forLanguageTag(localeTag == null ? "fa-IR" : localeTag);
+        int result = tts.setLanguage(requested);
+        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+            tts.setLanguage(Locale.ENGLISH);
+        }
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "MRT1_JARVIS");
     }
 
@@ -122,5 +133,5 @@ public final class SpeechBridge {
         if (recognizer != null) recognizer.stopListening();
     }
 
-    private static native void nativeResult(String text);
+    private static native void nativeResult(String text);\n    private static native void nativeTtsDone();
 }
