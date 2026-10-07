@@ -18,6 +18,12 @@ jobs:
           test -f mrt1/android/AndroidManifest.xml
           echo "MRT1 source tree found"
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
@@ -28,17 +34,19 @@ jobs:
           modules: 'qtmultimedia qtpositioning qtserialport'
           cache: true
 
-      - name: Install Android SDK tools
-        uses: android-actions/setup-android@v3
-
       - name: Install Android SDK packages
         run: |
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
           yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
 
       - name: Configure
         run: |
-          cmake -S mrt1 -B build             -DCMAKE_BUILD_TYPE=Release             -DQT_HOST_PATH="$Qt6_DIR/../../../"             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"             -DANDROID_ABI=armeabi-v7a             -DANDROID_PLATFORM=android-28
+          cmake -S mrt1 -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DQT_HOST_PATH="$QT_HOST_PATH" \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=armeabi-v7a \
+            -DANDROID_PLATFORM=android-28
 
       - name: Build
         run: cmake --build build --config Release --parallel 2
