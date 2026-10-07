@@ -1,0 +1,56 @@
+name: MRT1 Android Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check project
+        run: |
+          test -f mrt1/CMakeLists.txt
+          test -f mrt1/android/AndroidManifest.xml
+          echo "MRT1 source tree found"
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.3'
+          host: linux
+          target: android
+          arch: android_armv7
+          modules: 'qtmultimedia qtpositioning qtserialport'
+          cache: true
+
+      - name: Install Android SDK tools
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
+          yes | sdkmanager --licenses >/dev/null || true
+
+      - name: Configure
+        run: |
+          cmake -S mrt1 -B build             -DCMAKE_BUILD_TYPE=Release             -DQT_HOST_PATH="$Qt6_DIR/../../../"             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"             -DANDROID_ABI=armeabi-v7a             -DANDROID_PLATFORM=android-28
+
+      - name: Build
+        run: cmake --build build --config Release --parallel 2
+
+      - name: Find APK
+        run: |
+          find build -type f -name "*.apk" -print
+          test -n "$(find build -type f -name '*.apk' -print -quit)"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MRT1-Android-APK
+          path: build/**/*.apk
+          if-no-files-found: error
