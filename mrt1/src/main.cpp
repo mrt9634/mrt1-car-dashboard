@@ -10,6 +10,9 @@
 #include "HardwareProbe.h"
 #include "ReadOnlySerialProbe.h"
 #include "AutoMatchManager.h"
+#include "GpsSpeedProvider.h"
+#include "VehicleSpeedRouter.h"
+#include "OpenAIManager.h"
 #include "LocalDatabase.h"
 #include "SetupManager.h"
 
@@ -30,6 +33,10 @@ int main(int argc,char *argv[])
     HardwareProbe hardwareProbe;
     ReadOnlySerialProbe serialProbe;
     AutoMatchManager autoMatch;
+    GpsSpeedProvider gpsSpeed;
+    VehicleSpeedRouter speedRouter;
+    OpenAIManager openai;
+    SetupManager setupManager;
 
     vehicleBackend.setDisconnected();
     canProvider.setOffline();
@@ -47,7 +54,11 @@ int main(int argc,char *argv[])
     ctx->setContextProperty("hardwareProbe",&hardwareProbe);
     ctx->setContextProperty("serialProbe",&serialProbe);
     ctx->setContextProperty("autoMatch",&autoMatch);
+    ctx->setContextProperty("gpsSpeed",&gpsSpeed);
+    ctx->setContextProperty("speedRouter",&speedRouter);
+    ctx->setContextProperty("openai",&openai);
     ctx->setContextProperty("setupManager",&setupManager);
+
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/MRT1/qml/Main.qml")));
     if(engine.rootObjects().isEmpty()) return -1;
     return app.exec();
