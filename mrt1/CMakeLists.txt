@@ -7,28 +7,23 @@ set(CMAKE_AUTOMOC ON)
 if(ANDROID AND DEFINED ENV{QT_ROOT_DIR})
     set(MRT1_QT_PREFIX "$ENV{QT_ROOT_DIR}")
     set(MRT1_QT_CMAKE "${MRT1_QT_PREFIX}/lib/cmake")
-    set(Qt6Core_DIR "${MRT1_QT_CMAKE}/Qt6Core" CACHE PATH "" FORCE)
-    set(Qt6Gui_DIR "${MRT1_QT_CMAKE}/Qt6Gui" CACHE PATH "" FORCE)
-    set(Qt6Qml_DIR "${MRT1_QT_CMAKE}/Qt6Qml" CACHE PATH "" FORCE)
-    set(Qt6Quick_DIR "${MRT1_QT_CMAKE}/Qt6Quick" CACHE PATH "" FORCE)
-    set(Qt6QuickControls2_DIR "${MRT1_QT_CMAKE}/Qt6QuickControls2" CACHE PATH "" FORCE)
-    set(Qt6Multimedia_DIR "${MRT1_QT_CMAKE}/Qt6Multimedia" CACHE PATH "" FORCE)
-    set(Qt6Network_DIR "${MRT1_QT_CMAKE}/Qt6Network" CACHE PATH "" FORCE)
-    set(Qt6Sql_DIR "${MRT1_QT_CMAKE}/Qt6Sql" CACHE PATH "" FORCE)
-    set(Qt6SerialPort_DIR "${MRT1_QT_CMAKE}/Qt6SerialPort" CACHE PATH "" FORCE)
-    set(Qt6Positioning_DIR "${MRT1_QT_CMAKE}/Qt6Positioning" CACHE PATH "" FORCE)
+    set(Qt6_DIR "${MRT1_QT_CMAKE}/Qt6" CACHE PATH "" FORCE)
+    set(CMAKE_PREFIX_PATH "${MRT1_QT_PREFIX};${MRT1_QT_CMAKE};${CMAKE_PREFIX_PATH}" CACHE STRING "" FORCE)
+    set(QT_ADDITIONAL_PACKAGES_PREFIX_PATH "${MRT1_QT_CMAKE}" CACHE STRING "" FORCE)
 endif()
 
-find_package(Qt6Core CONFIG REQUIRED)
-find_package(Qt6Gui CONFIG REQUIRED)
-find_package(Qt6Qml CONFIG REQUIRED)
-find_package(Qt6Quick CONFIG REQUIRED)
-find_package(Qt6QuickControls2 CONFIG REQUIRED)
-find_package(Qt6Multimedia CONFIG REQUIRED)
-find_package(Qt6Network CONFIG REQUIRED)
-find_package(Qt6Sql CONFIG REQUIRED)
-find_package(Qt6SerialPort CONFIG REQUIRED)
-find_package(Qt6Positioning CONFIG REQUIRED)
+find_package(Qt6 CONFIG REQUIRED COMPONENTS
+    Core
+    Gui
+    Qml
+    Quick
+    QuickControls2
+    Multimedia
+    Network
+    Sql
+    SerialPort
+    Positioning
+)
 
 qt_add_executable(MRT1
  src/main.cpp src/VehicleDataProvider.h src/VehicleDataBackend.h
