@@ -3,6 +3,8 @@ package com.mrt.jarvis;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.content.pm.PackageManager;
+import android.Manifest;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -15,6 +17,16 @@ public final class SpeechBridge {
     private static TextToSpeech tts;
 
     private SpeechBridge() {}
+
+    public static boolean hasRecordPermission(Context context) {
+        return context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static void requestRecordPermission(Context context) {
+        if (context instanceof android.app.Activity) {
+            ((android.app.Activity) context).requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 4101);
+        }
+    }
 
     public static void speak(Context context, String text, String localeTag) {
         if (tts == null) tts = new TextToSpeech(context.getApplicationContext(), status -> {});
