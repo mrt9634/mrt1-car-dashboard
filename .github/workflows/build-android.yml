@@ -56,6 +56,12 @@ jobs:
       - name: Configure
         run: |
           chmod +x "$QT_ROOT_DIR/bin/qt-cmake"
+          export CMAKE_PREFIX_PATH="$QT_ROOT_DIR:$QT_ROOT_DIR/lib/cmake/Qt6:$QT_ROOT_DIR/lib/cmake/Qt6Core${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}"
+          export Qt6_DIR="$QT_ROOT_DIR/lib/cmake/Qt6"
+          export Qt6Core_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Core"
+          echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
+          echo "Qt6_DIR=$Qt6_DIR"
+          echo "Qt6Core_DIR=$Qt6Core_DIR"
           "$QT_ROOT_DIR/bin/qt-cmake" -S mrt1 -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DQT_HOST_PATH="$QT_HOST_PATH" \
