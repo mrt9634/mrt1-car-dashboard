@@ -22,12 +22,12 @@ public:
 
     Q_INVOKABLE void setInterface(const QString &name){m_interface=name;m_status=QStringLiteral("Interface configured: ")+name;emit stateChanged();}
     Q_INVOKABLE void setOffline(){m_connected=false;m_status=QStringLiteral("CAN offline");emit stateChanged();}
-    Q_INVOKABLE void acceptFrame(const QVariantMap &signals){
+    Q_INVOKABLE void acceptFrame(const QVariantMap &canSignals){
         // Generic signal layer. Vendor-specific CAN decoding belongs in an adapter.
-        if(signals.isEmpty()) return;
+        if(canSignals.isEmpty()) return;
         m_connected=true;
         m_status=QStringLiteral("CAN data received");
-        m_vehicle->setVehicleData(signals);
+        m_vehicle->setVehicleData(canSignals);
         emit stateChanged();
     }
 
