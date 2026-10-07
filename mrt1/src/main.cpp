@@ -1,6 +1,10 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QCoreApplication>
+#ifdef Q_OS_ANDROID
+#include <QJniObject>
+#include <jni.h>
+#endif
 #include "VehicleDataProvider.h"
 #include "VehicleDataBackend.h"
 #include "CanProvider.h"
@@ -16,6 +20,17 @@
 #include "LocalDatabase.h"
 #include "SetupManager.h"
 
+#ifdef Q_OS_ANDROID
+static SpeechManager *gSpeechManager = nullptr;
+extern "C" JNIEXPORT void JNICALL Java_com_mrt_jarvis_SpeechBridge_nativeResult(JNIEnv *env, jclass, jstring value) {
+    Q_UNUSED(env);
+    if (!gSpeechManager) return;
+    QJniObject text(value);
+    QMetaObject::invokeMethod(gSpeechManager, "acceptRecognition", Qt::QueuedConnection,
+                              Q_ARG(QString, text.toString()));
+}
+#endif
+
 int main(int argc,char *argv[])
 {
     QGuiApplication app(argc,argv);
@@ -29,6 +44,9 @@ int main(int argc,char *argv[])
     CanProvider canProvider(&vehicleData);
     ObdProvider obdProvider(&vehicleData);
     SpeechManager speechManager;
+#ifdef Q_OS_ANDROID
+    gSpeechManager = &speechManager;
+#endif
     FactoryDiagnostics factoryDiagnostics;
     HardwareProbe hardwareProbe;
     ReadOnlySerialProbe serialProbe;
