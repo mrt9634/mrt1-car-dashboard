@@ -7,7 +7,7 @@ Item {
  Rectangle{anchors.fill:parent;color:"#05070a"}
  MediaPlayer{id:player;audioOutput:AudioOutput{};source:localMusic.currentIndex>=0&&localMusic.currentIndex<localMusic.tracks.length?localMusic.tracks[localMusic.currentIndex].url:"";onPlaybackStateChanged:localMusic.setPlaying(playbackState===MediaPlayer.PlayingState)}
  ColumnLayout{anchors.fill:parent;anchors.margins:22;spacing:12
-  RowLayout{Layout.fillWidth:true;Label{text:"MUSIC";color:"white";font.pixelSize:26;font.bold:true};Item{Layout.fillWidth:true};Button{text:"BACK";onClicked:pages.pop()}}
+  RowLayout{Layout.fillWidth:true;Label{text:"MUSIC";color:"white";font.pixelSize:26;font.bold:true};Item{Layout.fillWidth:true};Button{text:"BACK";onClicked:StackView.view.pop()}}
   RowLayout{Layout.fillWidth:true
    Button{text:"SCAN /MUSIC";onClicked:localMusic.scan()}
    Button{text:"PLAY";enabled:localMusic.currentIndex>=0;onClicked:player.play()}
