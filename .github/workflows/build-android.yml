@@ -32,7 +32,7 @@ jobs:
           target: android
           arch: android_armv7
           modules: 'qtshadertools qtmultimedia qtpositioning qtserialport'
-          archives: 'qtdeclarative'
+          archives: 'qtbase qtdeclarative'
           cache: true
 
       - name: Set up Android SDK
