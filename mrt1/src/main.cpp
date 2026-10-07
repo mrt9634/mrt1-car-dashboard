@@ -20,6 +20,7 @@
 #include "LocalDatabase.h"
 #include "SetupManager.h"
 #include "CanFrameMonitor.h"
+#include "CanSignalDecoder.h"
 
 #ifdef Q_OS_ANDROID
 static SpeechManager *gSpeechManager = nullptr;
@@ -52,6 +53,7 @@ int main(int argc,char *argv[])
     HardwareProbe hardwareProbe;
     ReadOnlySerialProbe serialProbe;
     CanFrameMonitor canFrameMonitor;
+    CanSignalDecoder canDecoder;
     serialProbe.setMonitor(&canFrameMonitor);
     AutoMatchManager autoMatch;
     GpsSpeedProvider gpsSpeed;
@@ -80,6 +82,7 @@ int main(int argc,char *argv[])
     ctx->setContextProperty("openai",&openai);
     ctx->setContextProperty("setupManager",&setupManager);
     ctx->setContextProperty("canFrameMonitor",&canFrameMonitor);
+    ctx->setContextProperty("canDecoder",&canDecoder);
 
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/MRT1/qml/Main.qml")));
     if(engine.rootObjects().isEmpty()) return -1;
