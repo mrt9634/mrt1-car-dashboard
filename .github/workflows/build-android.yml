@@ -57,21 +57,22 @@ jobs:
       - name: Configure
         run: |
           chmod +x "$QT_ROOT_DIR/bin/qt-cmake"
-          export CMAKE_PREFIX_PATH="$QT_ROOT_DIR:$QT_ROOT_DIR/lib/cmake/Qt6:$QT_ROOT_DIR/lib/cmake/Qt6Core${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}"
+          QT_MODULE_PREFIXES="$(find "$QT_ROOT_DIR/lib/cmake" -mindepth 1 -maxdepth 1 -type d -print | paste -sd ";" -)"
+          export CMAKE_PREFIX_PATH="$QT_ROOT_DIR;$QT_ROOT_DIR/lib/cmake;$QT_ROOT_DIR/lib/cmake/Qt6;$QT_ROOT_DIR/lib/cmake/Qt6Core;$QT_MODULE_PREFIXES${CMAKE_PREFIX_PATH:+;$CMAKE_PREFIX_PATH}"
           export Qt6_DIR="$QT_ROOT_DIR/lib/cmake/Qt6"
           export Qt6Core_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Core"
           echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
           echo "Qt6_DIR=$Qt6_DIR"
           echo "Qt6Core_DIR=$Qt6Core_DIR"
-          echo "Qt6QmlIntegration_DIR=$QT_ROOT_DIR/lib/cmake/Qt6QmlIntegration"
-          test -f "$QT_ROOT_DIR/lib/cmake/Qt6QmlIntegration/Qt6QmlIntegrationConfig.cmake"
+          echo "Qt6 QML CMake packages:"
+          find "$QT_ROOT_DIR/lib/cmake" -mindepth 1 -maxdepth 1 -type d -name "Qt6Qml*" -print | sort
+          test -f "$QT_ROOT_DIR/lib/cmake/Qt6Qml/Qt6QmlConfig.cmake"
           "$QT_ROOT_DIR/bin/qt-cmake" -S mrt1 -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DQT_HOST_PATH="$QT_HOST_PATH" \
             -DQt6_DIR="$QT_ROOT_DIR/lib/cmake/Qt6" \
             -DQt6Core_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Core" \
-            -DQt6QmlIntegration_DIR="$QT_ROOT_DIR/lib/cmake/Qt6QmlIntegration" \
-            -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR:$QT_ROOT_DIR/lib/cmake/Qt6;$QT_ROOT_DIR/lib/cmake/Qt6Core;$QT_ROOT_DIR/lib/cmake/Qt6QmlIntegration" \
+            -DCMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH" \
             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=armeabi-v7a \
             -DANDROID_PLATFORM=android-28
