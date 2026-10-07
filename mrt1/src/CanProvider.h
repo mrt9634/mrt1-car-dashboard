@@ -2,8 +2,7 @@
 #include <QObject>
 #include <QString>
 #include <QVariantMap>
-
-class VehicleDataProvider;
+#include "VehicleDataProvider.h"
 
 class CanProvider : public QObject
 {
