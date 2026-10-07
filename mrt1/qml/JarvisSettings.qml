@@ -22,7 +22,7 @@ Item {
         RowLayout {
             Button { text:"PERSIAN"; onClicked:speechManager.locale="fa-IR" }
             Button { text:"ENGLISH"; onClicked:speechManager.locale="en-US" }
-            Button { text:"BACK"; onClicked:pages.pop() }
+            Button { text:"BACK"; onClicked:StackView.view.pop() }
         }
     }
 }
