@@ -32,7 +32,7 @@ jobs:
           target: android
           arch: android_armv7
           modules: 'qtshadertools qtmultimedia qtpositioning qtserialport'
-          archives: 'qtbase qtdeclarative'
+          archives: 'qtbase qtdeclarative icu'
           cache-key-prefix: 'mrt1-qt-clean'
           cache: false
 
