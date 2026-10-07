@@ -67,6 +67,10 @@ Item {
                 }
                 Label { text: hardwareProbe.status; color: "#aab4c0"; font.pixelSize: 12 }
                 Label {
+                    text: "Android note: internal /dev serial access depends on the head-unit system/vendor permissions."
+                    color: "#65717d"; font.pixelSize: 11; wrapMode: Text.Wrap; Layout.fillWidth: true
+                }
+                Label {
                     text: hardwareProbe.candidates.length > 0
                           ? "Candidates: " + hardwareProbe.candidates.join(", ")
                           : "Candidates: none"
@@ -77,6 +81,10 @@ Item {
                 Label {
                     text: "READ ONLY — no CAN frames, MCU commands, flash or factory writes"
                     color: "#65717d"; font.pixelSize: 11
+                }
+                Label {
+                    text: serialProbe.lastHex.length > 0 ? "RX HEX: " + serialProbe.lastHex : "RX HEX: waiting for data"
+                    color: "#73f5a0"; font.pixelSize: 11; wrapMode: Text.Wrap; Layout.fillWidth: true
                 }
             }
         }
