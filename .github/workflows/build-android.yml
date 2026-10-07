@@ -55,6 +55,7 @@ jobs:
 
       - name: Configure
         run: |
+          chmod +x "$QT_ROOT_DIR/bin/qt-cmake"
           "$QT_ROOT_DIR/bin/qt-cmake" -S mrt1 -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DQT_HOST_PATH="$QT_HOST_PATH" \
