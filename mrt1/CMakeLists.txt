@@ -7,7 +7,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2 Multimedi
 qt_add_executable(MRT1
  src/main.cpp src/VehicleDataProvider.h src/VehicleDataBackend.h
  src/CanProvider.h src/ObdProvider.h src/SpeechManager.h src/AudioNoiseFilter.h
- src/FactoryDiagnostics.h src/LocalDatabase.h src/SetupManager.h)
+ src/FactoryDiagnostics.h src/HardwareProbe.h src/LocalDatabase.h src/SetupManager.h)
 qt_add_qml_module(MRT1 URI MRT1 VERSION 1.0
  QML_FILES qml/Main.qml qml/Dashboard.qml qml/Vehicle.qml qml/Settings.qml qml/Diagnostics.qml)
 target_link_libraries(MRT1 PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2 Qt6::Multimedia Qt6::Network Qt6::Sql)
