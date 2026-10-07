@@ -4,6 +4,9 @@
 #include <QByteArray>
 #include <QSerialPort>
 #include <QSerialPortInfo>
+#ifdef Q_OS_ANDROID
+#include <QSysInfo>
+#endif
 
 class ReadOnlySerialProbe : public QObject
 {
@@ -13,7 +16,16 @@ class ReadOnlySerialProbe : public QObject
     Q_PROPERTY(QString status READ status NOTIFY stateChanged)
     Q_PROPERTY(QString lastHex READ lastHex NOTIFY dataReceived)
 public:
-    explicit ReadOnlySerialProbe(QObject *parent=nullptr):QObject(parent){}
+    explicit ReadOnlySerialProbe(QObject *parent=nullptr):QObject(parent){
+#ifndef Q_OS_ANDROID
+        connect(&m_serial,&QSerialPort::readyRead,this,&ReadOnlySerialProbe::readAvailable);
+        connect(&m_serial,&QSerialPort::errorOccurred,this,[this](QSerialPort::SerialPortError){
+            if(m_serial.error()!=QSerialPort::NoError){
+                m_status=QStringLiteral("Serial error: ")+m_serial.errorString(); emit stateChanged();
+            }
+        });
+#endif
+    }
 
     bool isOpen() const{return m_serial.isOpen();}
     QString port() const{return m_port;}
@@ -23,7 +35,27 @@ public:
     Q_INVOKABLE bool openReadOnly(const QString &portName){
         close();
         m_port=portName;
+#ifdef Q_OS_ANDROID
+        Q_UNUSED(portName);
+        m_status=QStringLiteral("Android: system/vendor serial bridge required");
+        emit stateChanged();
+        return false;
+#else
+        const auto infos=QSerialPortInfo::availablePorts();
+        bool valid=false;
+        for(const auto &info:infos) if(info.portName()==portName || info.systemLocation()==portName) { valid=true; break; }
+        if(!valid){
+            m_status=QStringLiteral("Port not enumerated by QSerialPort");
+            emit stateChanged();
+            return false;
+        }
         m_serial.setPortName(portName);
+        m_serial.setBaudRate(QSerialPort::Baud115200);
+        m_serial.setDataBits(QSerialPort::Data8);
+        m_serial.setParity(QSerialPort::NoParity);
+        m_serial.setStopBits(QSerialPort::OneStop);
+        m_serial.setFlowControl(QSerialPort::NoFlowControl);
+        m_serial.setReadBufferSize(4096);
         // Deliberately open without writing any bytes.
         if(!m_serial.open(QIODevice::ReadOnly)){
             m_status=QStringLiteral("Open failed: ")+m_serial.errorString();
@@ -33,10 +65,13 @@ public:
         m_status=QStringLiteral("READ ONLY: listening");
         emit stateChanged();
         return true;
+#endif
     }
 
     Q_INVOKABLE void close(){
+#ifndef Q_OS_ANDROID
         if(m_serial.isOpen()) m_serial.close();
+#endif
         m_status=QStringLiteral("Closed");
         emit stateChanged();
     }
@@ -44,6 +79,16 @@ public:
 signals:
     void stateChanged();
     void dataReceived();
+
+private slots:
+#ifndef Q_OS_ANDROID
+    void readAvailable(){
+        const QByteArray data=m_serial.readAll();
+        if(data.isEmpty()) return;
+        m_lastHex=data.toHex(' ').toUpper();
+        emit dataReceived();
+    }
+#endif
 
 private:
     QSerialPort m_serial;
