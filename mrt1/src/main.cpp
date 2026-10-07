@@ -6,6 +6,7 @@
 #include "CanProvider.h"
 #include "ObdProvider.h"
 #include "SpeechManager.h"
+#include "FactoryDiagnostics.h"
 #include "LocalDatabase.h"
 #include "SetupManager.h"
 
@@ -22,10 +23,12 @@ int main(int argc,char *argv[])
     CanProvider canProvider(&vehicleData);
     ObdProvider obdProvider(&vehicleData);
     SpeechManager speechManager;
+    FactoryDiagnostics factoryDiagnostics;
+
     vehicleBackend.setDisconnected();
     canProvider.setOffline();
     obdProvider.setOffline();
-    SetupManager setupManager;
+    factoryDiagnostics.clear();
 
     QQmlApplicationEngine engine;
     auto *ctx=engine.rootContext();
@@ -34,6 +37,7 @@ int main(int argc,char *argv[])
     ctx->setContextProperty("canProvider",&canProvider);
     ctx->setContextProperty("obdProvider",&obdProvider);
     ctx->setContextProperty("speechManager",&speechManager);
+    ctx->setContextProperty("factoryDiagnostics",&factoryDiagnostics);
     ctx->setContextProperty("setupManager",&setupManager);
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/MRT1/qml/Main.qml")));
     if(engine.rootObjects().isEmpty()) return -1;
