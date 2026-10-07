@@ -4,7 +4,6 @@
 #include <QTimer>
 #ifdef Q_OS_ANDROID
 #include <QJniObject>
-#include <QNativeInterface>
 #endif
 
 class SpeechManager : public QObject {
@@ -26,10 +25,8 @@ public:
 
     Q_INVOKABLE void startListening(){
 #ifdef Q_OS_ANDROID
-        auto context=QNativeInterface::QAndroidApplication::context();
         const bool granted = QJniObject::callStaticMethod<jboolean>(
-            "com/mrt/jarvis/SpeechBridge","hasRecordPermission",
-            "(Landroid/content/Context;)Z",context);
+            "com/mrt/jarvis/SpeechBridge","hasRecordPermission","()Z");
         if(!granted){
             QJniObject::callStaticMethod<void>(
                 "com/mrt/jarvis/SpeechBridge","requestRecordPermission",
@@ -38,8 +35,8 @@ public:
         }
         m_listening=true; m_status="Listening — "+m_locale; emit stateChanged();
         QJniObject::callStaticMethod<void>("com/mrt/jarvis/SpeechBridge","startListening",
-                                            "(Landroid/content/Context;Ljava/lang/String;)V",
-                                            context,QJniObject::fromString(m_locale).object());
+                                            "(Ljava/lang/String;)V",
+                                            QJniObject::fromString(m_locale).object());
 #else
         m_status="Android voice unavailable";emit stateChanged();
 #endif
@@ -56,10 +53,9 @@ public:
         if(text.trimmed().isEmpty())return;
 #ifdef Q_OS_ANDROID
         m_speaking=true;m_status="Speaking — "+m_locale;emit stateChanged();
-        auto context=QNativeInterface::QAndroidApplication::context();
         QJniObject::callStaticMethod<void>("com/mrt/jarvis/SpeechBridge","speak",
-                                            "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V",
-                                            context,QJniObject::fromString(text).object(),
+                                            "(Ljava/lang/String;Ljava/lang/String;)V",
+                                            QJniObject::fromString(text).object(),
                                             QJniObject::fromString(m_locale).object());
 #else
         m_speaking=true;m_status="TTS unavailable";emit stateChanged();
