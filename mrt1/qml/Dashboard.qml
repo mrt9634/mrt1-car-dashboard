@@ -199,12 +199,12 @@ Item {
                                 Layout.fillWidth: true
                                 font.pixelSize: 11
                                 onClicked: {
-                                    if (modelData === "JARVIS") pages.push(Qt.resolvedUrl("Jarvis.qml"));
-                                    else if (modelData === "SETTINGS") pages.push(Qt.resolvedUrl("Settings.qml"));
-                                    else if (modelData === "VEHICLE") pages.push(Qt.resolvedUrl("Vehicle.qml"));
-                                    else if (modelData === "NAVIGATION") pages.push(Qt.resolvedUrl("Navigation.qml"));
-                                    else if (modelData === "MUSIC") pages.push(Qt.resolvedUrl("Music.qml"));
-                                    else if (modelData === "PHONE") pages.push(Qt.resolvedUrl("Phone.qml"));
+                                    if (modelData === "JARVIS") StackView.view.push(Qt.resolvedUrl("Jarvis.qml"));
+                                    else if (modelData === "SETTINGS") StackView.view.push(Qt.resolvedUrl("Settings.qml"));
+                                    else if (modelData === "VEHICLE") StackView.view.push(Qt.resolvedUrl("Vehicle.qml"));
+                                    else if (modelData === "NAVIGATION") StackView.view.push(Qt.resolvedUrl("Navigation.qml"));
+                                    else if (modelData === "MUSIC") StackView.view.push(Qt.resolvedUrl("Music.qml"));
+                                    else if (modelData === "PHONE") StackView.view.push(Qt.resolvedUrl("Phone.qml"));
                                 }
                             }
                         }
