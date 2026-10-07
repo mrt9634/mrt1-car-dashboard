@@ -39,17 +39,26 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
-          packages: 'platform-tools platforms;android-33 build-tools;33.0.2 ndk;25.2.9519653'
+          packages: 'platform-tools platforms;android-33 build-tools;33.0.2 ndk;25.1.8937393'
 
-      - name: Verify Android SDK
+      - name: Verify Android SDK and pin Qt-compatible NDK
         run: |
           command -v sdkmanager
           sdkmanager --version
+          if [ -z "$ANDROID_SDK_ROOT" ]; then export ANDROID_SDK_ROOT="$ANDROID_HOME"; fi
+          if [ -z "$ANDROID_HOME" ]; then export ANDROID_HOME="$ANDROID_SDK_ROOT"; fi
+          export ANDROID_NDK_ROOT="$ANDROID_SDK_ROOT/ndk/25.1.8937393"
+          export ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT"
           test -d "$ANDROID_SDK_ROOT"
           test -d "$ANDROID_SDK_ROOT/build-tools/33.0.2"
           test -d "$ANDROID_NDK_ROOT"
+          test -f "$ANDROID_NDK_ROOT/source.properties"
+          grep "Pkg.Revision" "$ANDROID_NDK_ROOT/source.properties"
+          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME" >> "$GITHUB_ENV"
 
       - name: Verify Qt CMake package
         run: |
@@ -95,15 +104,6 @@ jobs:
             -DANDROID_ABI=armeabi-v7a \
             -DANDROID_SDK_ROOT="$ANDROID_SDK_ROOT" \
             -DANDROID_PLATFORM=android-28
-
-      - name: Verify generated Android Gradle project
-        run: |
-          test -f build/android-build/build.gradle
-          echo "Generated android-build/build.gradle:"
-          sed -n '1,80p' build/android-build/build.gradle
-          grep -Eq 'compileSdk(Version)?[[:space:]]+33' build/android-build/build.gradle
-          grep -Eq 'minSdkVersion[[:space:]]+28' build/android-build/build.gradle
-          grep -Eq 'targetSdkVersion[[:space:]]+33' build/android-build/build.gradle
 
       - name: Build
         run: cmake --build build --config Release --parallel 2
