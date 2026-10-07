@@ -41,7 +41,7 @@ qt_add_executable(MRT1
  src/AutoMatchManager.h src/GpsSpeedProvider.h src/VehicleSpeedRouter.h src/OpenAIManager.h src/LocalDatabase.h src/SetupManager.h
  src/CanFrameMonitor.h src/CanSignalDecoder.h src/LocalMusicManager.h src/PhoneManager.h)
 
-qt_add_qml_module(MRT1 URI MRT1 VERSION 1.0
+qt_add_qml_module(MRT1 URI MRT1 VERSION 1.0 NO_CACHEGEN
  QML_FILES
  qml/Main.qml
  qml/Dashboard.qml
