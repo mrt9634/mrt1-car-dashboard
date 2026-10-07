@@ -12,7 +12,6 @@ class FactoryDiagnostics : public QObject
     Q_PROPERTY(QString mcuModel READ mcuModel NOTIFY changed)
 public:
     explicit FactoryDiagnostics(QObject *parent=nullptr):QObject(parent){}
-
     QString canStatus() const{return m_canStatus;}
     QString canInterface() const{return m_canInterface;}
     QString mcuStatus() const{return m_mcuStatus;}
@@ -30,10 +29,8 @@ public:
         m_mcuStatus="UNKNOWN";m_mcuVersion="UNKNOWN";m_mcuModel="UNKNOWN";
         emit changed();
     }
-
 signals:
     void changed();
-
 private:
     QString m_canStatus="UNKNOWN";
     QString m_canInterface="UNKNOWN";
