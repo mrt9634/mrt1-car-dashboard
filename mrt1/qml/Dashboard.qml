@@ -176,6 +176,7 @@ Item {
                                 text: modelData
                                 Layout.fillWidth: true
                                 font.pixelSize: 11
+                                onClicked: if (modelData === "JARVIS") pages.push(Qt.resolvedUrl("Jarvis.qml"))
                             }
                         }
                     }
