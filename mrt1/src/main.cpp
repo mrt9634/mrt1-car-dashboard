@@ -51,13 +51,13 @@ int main(int argc,char *argv[])
     FactoryDiagnostics factoryDiagnostics;
     HardwareProbe hardwareProbe;
     ReadOnlySerialProbe serialProbe;
+    CanFrameMonitor canFrameMonitor;
     serialProbe.setMonitor(&canFrameMonitor);
     AutoMatchManager autoMatch;
     GpsSpeedProvider gpsSpeed;
     VehicleSpeedRouter speedRouter;
     OpenAIManager openai;
     SetupManager setupManager;
-    CanFrameMonitor canFrameMonitor;
 
     vehicleBackend.setDisconnected();
     canProvider.setOffline();
@@ -79,6 +79,7 @@ int main(int argc,char *argv[])
     ctx->setContextProperty("speedRouter",&speedRouter);
     ctx->setContextProperty("openai",&openai);
     ctx->setContextProperty("setupManager",&setupManager);
+    ctx->setContextProperty("canFrameMonitor",&canFrameMonitor);
 
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/MRT1/qml/Main.qml")));
     if(engine.rootObjects().isEmpty()) return -1;
