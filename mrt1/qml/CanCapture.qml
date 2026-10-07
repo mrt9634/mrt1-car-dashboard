@@ -7,6 +7,12 @@ Item{anchors.fill:parent
   RowLayout{Layout.fillWidth:true;Label{text:"CAN / MCU RAW CAPTURE";color:"white";font.pixelSize:23;font.bold:true};Item{Layout.fillWidth:true};Button{text:"BACK";onClicked:pages.pop()}}
   Label{text:canFrameMonitor.status+" • "+canFrameMonitor.frameCount+" frames";color:"#7d8994"}
   RowLayout{Layout.fillWidth:true
+   Label{text:"BAUD";color:"#65717d"}
+   ComboBox{id:baud;model:["9600","19200","38400","57600","115200","125000","250000","500000"];currentIndex:4;onCurrentTextChanged:canFrameMonitor.setSelection(0,Number(currentText))}
+   Item{Layout.fillWidth:true}
+   Label{text:"RAW RX ONLY";color:"#73f5a0";font.bold:true}
+  }
+  RowLayout{Layout.fillWidth:true
    Button{text:"START";enabled:!canFrameMonitor.capturing;onClicked:canFrameMonitor.start()}
    Button{text:"STOP";enabled:canFrameMonitor.capturing;onClicked:canFrameMonitor.stop()}
    Button{text:"CLEAR";onClicked:canFrameMonitor.clear()}
