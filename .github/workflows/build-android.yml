@@ -31,7 +31,8 @@ jobs:
           host: linux
           target: android
           arch: android_armv7
-          modules: 'qtdeclarative qtshadertools qtmultimedia qtpositioning qtserialport'
+          modules: 'qtshadertools qtmultimedia qtpositioning qtserialport'
+          archives: 'qtdeclarative'
           cache: true
 
       - name: Set up Android SDK
