@@ -74,9 +74,11 @@ public final class SpeechBridge {
         return context.checkSelfPermission(Manifest.permission.RECORD_AUDIO)==PackageManager.PERMISSION_GRANTED;
     }
 
-    public static void requestRecordPermission(Context context){
-        if(context instanceof android.app.Activity)
-            ((android.app.Activity)context).requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},4101);
+    public static void requestRecordPermission(){
+        try {
+            android.app.Activity activity = org.qtproject.qt.android.QtNative.activity();
+            if (activity != null) activity.requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},4101);
+        } catch (Exception ignored) {}
     }
 
     public static void speak(Context context,String text,String localeTag){
