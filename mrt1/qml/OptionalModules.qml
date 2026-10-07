@@ -4,7 +4,7 @@ import QtQuick.Layouts
 Item { anchors.fill:parent
  Rectangle{anchors.fill:parent;color:"#05070a"}
  ColumnLayout{anchors.fill:parent;anchors.margins:22;spacing:12
-  RowLayout{Layout.fillWidth:true;Label{text:"OPTIONAL MODULES";color:"white";font.pixelSize:25;font.bold:true};Item{Layout.fillWidth:true};Button{text:"BACK";onClicked:pages.pop()}}
+  RowLayout{Layout.fillWidth:true;Label{text:"OPTIONAL MODULES";color:"white";font.pixelSize:25;font.bold:true};Item{Layout.fillWidth:true};Button{text:"BACK";onClicked:StackView.view.pop()}}
   Repeater{model:[
    ["3D VEHICLE VIEW","Quick3D • optional / disabled by default on low-RAM units"],
    ["PHONE MIRRORING","scrcpy / vendor bridge • requires explicit Android integration"],
