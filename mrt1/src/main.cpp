@@ -8,6 +8,7 @@
 #include "SpeechManager.h"
 #include "FactoryDiagnostics.h"
 #include "HardwareProbe.h"
+#include "ReadOnlySerialProbe.h"
 #include "LocalDatabase.h"
 #include "SetupManager.h"
 
@@ -26,6 +27,7 @@ int main(int argc,char *argv[])
     SpeechManager speechManager;
     FactoryDiagnostics factoryDiagnostics;
     HardwareProbe hardwareProbe;
+    ReadOnlySerialProbe serialProbe;
 
     vehicleBackend.setDisconnected();
     canProvider.setOffline();
@@ -41,6 +43,7 @@ int main(int argc,char *argv[])
     ctx->setContextProperty("speechManager",&speechManager);
     ctx->setContextProperty("factoryDiagnostics",&factoryDiagnostics);
     ctx->setContextProperty("hardwareProbe",&hardwareProbe);
+    ctx->setContextProperty("serialProbe",&serialProbe);
     ctx->setContextProperty("setupManager",&setupManager);
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/MRT1/qml/Main.qml")));
     if(engine.rootObjects().isEmpty()) return -1;
