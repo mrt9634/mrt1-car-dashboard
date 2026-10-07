@@ -10,6 +10,7 @@ qt_add_executable(MRT1
     src/main.cpp
     src/VehicleDataProvider.h
     src/LocalDatabase.h
+    src/SetupManager.h
 )
 
 qt_add_qml_module(MRT1
