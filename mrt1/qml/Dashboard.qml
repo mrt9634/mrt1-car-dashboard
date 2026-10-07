@@ -5,6 +5,11 @@ import QtQuick.Layouts
 Item {
     anchors.fill: parent
 
+    Component.onCompleted: {
+        if (setupManager.firstRun)
+            setupManager.runInitialSetup()
+    }
+
     Rectangle {
         anchors.fill: parent
         color: "#05070a"
