@@ -14,7 +14,7 @@ Item {
         RowLayout {
             Layout.fillWidth:true
             Button { text:autoMatch.running ? "SCANNING..." : "SCAN & MATCH"; enabled:!autoMatch.running; onClicked:autoMatch.scan() }
-            Button { text:"BACK"; onClicked:stackView.pop() }
+            Button { text:"BACK"; onClicked:StackView.view.pop() }
         }
         ScrollView {
             Layout.fillWidth:true; Layout.fillHeight:true
