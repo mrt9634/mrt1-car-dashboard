@@ -57,6 +57,14 @@ jobs:
           echo "Qt6 Core package found"
           ls -la "$QT_ROOT_DIR/lib/cmake/Qt6Core"
 
+      - name: Configure Qt host runtime
+        run: |
+          test -n "$QT_HOST_PATH"
+          test -d "$QT_HOST_PATH/lib"
+          echo "Qt host path: $QT_HOST_PATH"
+          echo "LD_LIBRARY_PATH=$QT_HOST_PATH/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
+          echo "PATH=$QT_HOST_PATH/bin${PATH:+:$PATH}" >> "$GITHUB_ENV"
+
       - name: Configure
         run: |
           chmod +x "$QT_ROOT_DIR/bin/qt-cmake"
