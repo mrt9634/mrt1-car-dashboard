@@ -51,6 +51,7 @@ int main(int argc,char *argv[])
     FactoryDiagnostics factoryDiagnostics;
     HardwareProbe hardwareProbe;
     ReadOnlySerialProbe serialProbe;
+    serialProbe.setMonitor(&canFrameMonitor);
     AutoMatchManager autoMatch;
     GpsSpeedProvider gpsSpeed;
     VehicleSpeedRouter speedRouter;
