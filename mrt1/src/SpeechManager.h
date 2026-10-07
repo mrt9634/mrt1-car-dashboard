@@ -26,8 +26,17 @@ public:
 
     Q_INVOKABLE void startListening(){
 #ifdef Q_OS_ANDROID
-        m_listening=true; m_status="Listening — "+m_locale; emit stateChanged();
         auto context=QNativeInterface::QAndroidApplication::context();
+        const bool granted = QJniObject::callStaticMethod<jboolean>(
+            "com/mrt/jarvis/SpeechBridge","hasRecordPermission",
+            "(Landroid/content/Context;)Z",context);
+        if(!granted){
+            QJniObject::callStaticMethod<void>(
+                "com/mrt/jarvis/SpeechBridge","requestRecordPermission",
+                "(Landroid/content/Context;)V",context);
+            m_status="Microphone permission required — tap VOICE again"; emit stateChanged(); return;
+        }
+        m_listening=true; m_status="Listening — "+m_locale; emit stateChanged();
         QJniObject::callStaticMethod<void>("com/mrt/jarvis/SpeechBridge","startListening",
                                             "(Landroid/content/Context;Ljava/lang/String;)V",
                                             context,QJniObject::fromString(m_locale).object());
