@@ -26,7 +26,11 @@
 
 #ifdef Q_OS_ANDROID
 static SpeechManager *gSpeechManager = nullptr;
-extern "C" JNIEXPORT void JNICALL Java_com_mrt_jarvis_SpeechBridge_nativeTtsDone(JNIEnv *, jclass) {\n    if (!gSpeechManager) return;\n    QMetaObject::invokeMethod(gSpeechManager, "acceptTtsDone", Qt::QueuedConnection);\n}\n\nextern "C" JNIEXPORT void JNICALL Java_com_mrt_jarvis_SpeechBridge_nativeResult(JNIEnv *env, jclass, jstring value) {
+extern "C" JNIEXPORT void JNICALL Java_com_mrt_jarvis_SpeechBridge_nativeTtsDone(JNIEnv *, jclass) {
+    if (!gSpeechManager) return;
+    QMetaObject::invokeMethod(gSpeechManager, "acceptTtsDone", Qt::QueuedConnection);
+}
+extern "C" JNIEXPORT void JNICALL Java_com_mrt_jarvis_SpeechBridge_nativeResult(JNIEnv *env, jclass, jstring value) {
     Q_UNUSED(env);
     if (!gSpeechManager) return;
     QJniObject text(value);
