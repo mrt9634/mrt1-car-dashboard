@@ -3,7 +3,6 @@
 #include <QString>
 #ifdef Q_OS_ANDROID
 #include <QJniObject>
-#include <QNativeInterface>
 #endif
 
 class PhoneManager : public QObject {
@@ -23,16 +22,13 @@ public:
 
     Q_INVOKABLE void refresh(){
 #ifdef Q_OS_ANDROID
-        auto context=QNativeInterface::QAndroidApplication::context();
         m_permission=QJniObject::callStaticMethod<jboolean>(
-            "com/mrt/jarvis/PhoneBridge","hasPhonePermission",
-            "(Landroid/content/Context;)Z",context);
+            "com/mrt/jarvis/PhoneBridge","hasPhonePermission","()Z");
         if(!m_permission){
             m_inCall=false; m_stateText="PERMISSION REQUIRED"; m_status="Phone permission is required for call-state access.";
         } else {
             jint state=QJniObject::callStaticMethod<jint>(
-                "com/mrt/jarvis/PhoneBridge","getPhoneState",
-                "(Landroid/content/Context;)I",context);
+                "com/mrt/jarvis/PhoneBridge","getPhoneState","()I");
             m_inCall=(state==2);
             m_stateText=state==2?"IN CALL":(state==1?"RINGING":"IDLE");
             m_status="Native Android telephony status";
