@@ -4,9 +4,6 @@
 #include <QByteArray>
 #include <QSerialPort>
 #include <QSerialPortInfo>
-#ifdef Q_OS_ANDROID
-#include <QSysInfo>
-#endif
 
 class ReadOnlySerialProbe : public QObject
 {
@@ -17,8 +14,7 @@ class ReadOnlySerialProbe : public QObject
     Q_PROPERTY(QString lastHex READ lastHex NOTIFY dataReceived)
 public:
     explicit ReadOnlySerialProbe(QObject *parent=nullptr):QObject(parent){
-#ifndef Q_OS_ANDROID
-        connect(&m_serial,&QSerialPort::readyRead,this,&ReadOnlySerialProbe::readAvailable);
+connect(&m_serial,&QSerialPort::readyRead,this,&ReadOnlySerialProbe::readAvailable);
         connect(&m_serial,&QSerialPort::errorOccurred,this,[this](QSerialPort::SerialPortError){
             if(m_serial.error()!=QSerialPort::NoError){
                 m_status=QStringLiteral("Serial error: ")+m_serial.errorString(); emit stateChanged();
@@ -35,12 +31,6 @@ public:
     Q_INVOKABLE bool openReadOnly(const QString &portName){
         close();
         m_port=portName;
-#ifdef Q_OS_ANDROID
-        Q_UNUSED(portName);
-        m_status=QStringLiteral("Android: system/vendor serial bridge required");
-        emit stateChanged();
-        return false;
-#else
         const auto infos=QSerialPortInfo::availablePorts();
         bool valid=false;
         for(const auto &info:infos) if(info.portName()==portName || info.systemLocation()==portName) { valid=true; break; }
@@ -65,13 +55,10 @@ public:
         m_status=QStringLiteral("READ ONLY: listening");
         emit stateChanged();
         return true;
-#endif
     }
 
     Q_INVOKABLE void close(){
-#ifndef Q_OS_ANDROID
         if(m_serial.isOpen()) m_serial.close();
-#endif
         m_status=QStringLiteral("Closed");
         emit stateChanged();
     }
@@ -81,7 +68,7 @@ signals:
     void dataReceived();
 
 private slots:
-#ifndef Q_OS_ANDROID
+#if 1
     void readAvailable(){
         const QByteArray data=m_serial.readAll();
         if(data.isEmpty()) return;
