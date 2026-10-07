@@ -46,6 +46,13 @@ jobs:
           test -d "$ANDROID_SDK_ROOT"
           test -d "$ANDROID_NDK_ROOT"
 
+      - name: Verify Qt CMake package
+        run: |
+          test -f "$QT_ROOT_DIR/lib/cmake/Qt6/Qt6Config.cmake"
+          test -f "$QT_ROOT_DIR/lib/cmake/Qt6Core/Qt6CoreConfig.cmake"
+          echo "Qt6 Core package found"
+          ls -la "$QT_ROOT_DIR/lib/cmake/Qt6Core"
+
       - name: Configure
         run: |
           cmake -S mrt1 -B build \
@@ -62,7 +69,6 @@ jobs:
             -DQt6Sql_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Sql" \
             -DQt6SerialPort_DIR="$QT_ROOT_DIR/lib/cmake/Qt6SerialPort" \
             -DQt6Positioning_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Positioning" \
-            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH \
             -DQT_HOST_PATH="$QT_HOST_PATH" \
             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=armeabi-v7a \
