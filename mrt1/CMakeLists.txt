@@ -8,8 +8,17 @@ if(ANDROID AND DEFINED ENV{QT_ROOT_DIR})
     set(MRT1_QT_PREFIX "$ENV{QT_ROOT_DIR}")
     set(MRT1_QT_CMAKE "${MRT1_QT_PREFIX}/lib/cmake")
     set(Qt6_DIR "${MRT1_QT_CMAKE}/Qt6" CACHE PATH "" FORCE)
-    set(CMAKE_PREFIX_PATH "${MRT1_QT_PREFIX};${MRT1_QT_CMAKE};${CMAKE_PREFIX_PATH}" CACHE STRING "" FORCE)
-    set(QT_ADDITIONAL_PACKAGES_PREFIX_PATH "${MRT1_QT_CMAKE}" CACHE STRING "" FORCE)
+
+    # Qt 6.5 Android packages use many inter-module CONFIG dependencies.
+    # Register every installed Qt6*/CMake package directory explicitly so
+    # find_package() can resolve Core/Gui/Qml/Quick and their private deps.
+    file(GLOB MRT1_QT_PACKAGE_CONFIGS
+        "${MRT1_QT_CMAKE}/Qt6*/Qt6*Config.cmake")
+    foreach(MRT1_QT_CONFIG IN LISTS MRT1_QT_PACKAGE_CONFIGS)
+        get_filename_component(MRT1_QT_PACKAGE_DIR "${MRT1_QT_CONFIG}" DIRECTORY)
+        get_filename_component(MRT1_QT_PACKAGE_NAME "${MRT1_QT_PACKAGE_DIR}" NAME)
+        set("${MRT1_QT_PACKAGE_NAME}_DIR" "${MRT1_QT_PACKAGE_DIR}" CACHE PATH "" FORCE)
+    endforeach()
 endif()
 
 find_package(Qt6 CONFIG REQUIRED COMPONENTS
