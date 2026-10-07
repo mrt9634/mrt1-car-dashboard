@@ -5,6 +5,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QDateTime>
+#include "CanFrameMonitor.h"
 
 class ReadOnlySerialProbe : public QObject
 {
@@ -78,6 +79,7 @@ private slots:
         if(data.isEmpty()) return;
         m_lastHex=data.toHex(' ').toUpper();
         m_timestamp=QDateTime::currentDateTime().toString(Qt::ISODateWithMs);
+        if (m_monitor) m_monitor->acceptRawFrame(m_port, m_baud, data);
         emit dataReceived();
     }
 
