@@ -8,7 +8,7 @@ import android.telephony.TelephonyManager;
 public final class PhoneBridge {
     private PhoneBridge() {}
 
-    public static boolean hasPhonePermission(Context context) {
+    private static Context qtContext() {\n        android.app.Activity activity = org.qtproject.qt.android.QtNative.activity();\n        return activity != null ? activity : null;\n    }\n\n    public static boolean hasPhonePermission() {\n        Context context = qtContext();\n        if (context == null) return false;
         return context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED;
     }
 
