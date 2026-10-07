@@ -4,6 +4,7 @@
 #include <QByteArray>
 #include <QSerialPort>
 #include <QSerialPortInfo>
+#include <QDateTime>
 
 class ReadOnlySerialProbe : public QObject
 {
@@ -12,6 +13,8 @@ class ReadOnlySerialProbe : public QObject
     Q_PROPERTY(QString port READ port NOTIFY stateChanged)
     Q_PROPERTY(QString status READ status NOTIFY stateChanged)
     Q_PROPERTY(QString lastHex READ lastHex NOTIFY dataReceived)
+    Q_PROPERTY(QString timestamp READ timestamp NOTIFY dataReceived)
+    Q_PROPERTY(int baud READ baud NOTIFY stateChanged)
 public:
     explicit ReadOnlySerialProbe(QObject *parent=nullptr):QObject(parent){
 connect(&m_serial,&QSerialPort::readyRead,this,&ReadOnlySerialProbe::readAvailable);
@@ -26,10 +29,13 @@ connect(&m_serial,&QSerialPort::readyRead,this,&ReadOnlySerialProbe::readAvailab
     QString port() const{return m_port;}
     QString status() const{return m_status;}
     QString lastHex() const{return m_lastHex;}
+    QString timestamp() const{return m_timestamp;}
+    int baud() const{return m_baud;}
 
-    Q_INVOKABLE bool openReadOnly(const QString &portName){
+    Q_INVOKABLE bool openReadOnly(const QString &portName, int baudRate=115200){
         close();
         m_port=portName;
+        m_baud=baudRate;
         const auto infos=QSerialPortInfo::availablePorts();
         bool valid=false;
         for(const auto &info:infos) if(info.portName()==portName || info.systemLocation()==portName) { valid=true; break; }
@@ -39,7 +45,7 @@ connect(&m_serial,&QSerialPort::readyRead,this,&ReadOnlySerialProbe::readAvailab
             return false;
         }
         m_serial.setPortName(portName);
-        m_serial.setBaudRate(QSerialPort::Baud115200);
+        m_serial.setBaudRate(baudRate);
         m_serial.setDataBits(QSerialPort::Data8);
         m_serial.setParity(QSerialPort::NoParity);
         m_serial.setStopBits(QSerialPort::OneStop);
@@ -71,6 +77,7 @@ private slots:
         const QByteArray data=m_serial.readAll();
         if(data.isEmpty()) return;
         m_lastHex=data.toHex(' ').toUpper();
+        m_timestamp=QDateTime::currentDateTime().toString(Qt::ISODateWithMs);
         emit dataReceived();
     }
 
@@ -79,4 +86,6 @@ private:
     QString m_port;
     QString m_status=QStringLiteral("Closed");
     QString m_lastHex;
+    QString m_timestamp;
+    int m_baud=115200;
 };
