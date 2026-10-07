@@ -33,7 +33,7 @@ public:
         if(!granted){
             QJniObject::callStaticMethod<void>(
                 "com/mrt/jarvis/SpeechBridge","requestRecordPermission",
-                "(Landroid/content/Context;)V",context);
+                "()V");
             m_status="Microphone permission required — tap VOICE again"; emit stateChanged(); return;
         }
         m_listening=true; m_status="Listening — "+m_locale; emit stateChanged();
