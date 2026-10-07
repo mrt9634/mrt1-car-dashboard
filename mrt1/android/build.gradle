@@ -7,7 +7,7 @@ apply plugin: 'com.android.application'
 dependencies { implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar']) }
 android {
     namespace androidPackageName
-    compileSdk qtTargetSdkVersion.toInteger()
+    compileSdk 33
     buildToolsVersion androidBuildToolsVersion
     ndkVersion androidNdkVersion
     packagingOptions.jniLibs.useLegacyPackaging true
@@ -30,8 +30,8 @@ android {
     aaptOptions { noCompress 'rcc' }
     defaultConfig {
         resConfig "en"
-        minSdkVersion qtMinSdkVersion
-        targetSdkVersion qtTargetSdkVersion
+        minSdkVersion 28
+        targetSdkVersion 33
         ndk.abiFilters = qtTargetAbiList.split(",")
     }
 }
