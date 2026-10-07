@@ -17,13 +17,16 @@ public:
     Q_INVOKABLE void scanReadOnly(){
         m_candidates.clear();
         const QStringList paths={
-            "/dev/ttyS0","/dev/ttyS1","/dev/ttyS2","/dev/ttyS3",
-            "/dev/ttyUSB0","/dev/ttyUSB1","/dev/ttyACM0"
+            "/dev/ttyS0","/dev/ttyS1","/dev/ttyS2","/dev/ttyS3","/dev/ttyS4","/dev/ttyS5",
+            "/dev/ttyHS0","/dev/ttyHS1","/dev/ttyHS2","/dev/ttyHS3",
+            "/dev/ttyMT0","/dev/ttyMT1","/dev/ttyMT2",
+            "/dev/ttyUSB0","/dev/ttyUSB1","/dev/ttyUSB2",
+            "/dev/ttyACM0","/dev/ttyACM1","/dev/ttyAMA0"
         };
         for(const auto &p:paths) if(QFileInfo::exists(p)) m_candidates.append(p);
         m_status=m_candidates.isEmpty()
             ? QStringLiteral("No candidate CAN/MCU interface found")
-            : QStringLiteral("Read-only interface candidates found");
+            : QStringLiteral("Read-only interface candidates found — no data has been written");
         emit changed();
     }
 
