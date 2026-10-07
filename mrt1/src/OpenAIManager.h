@@ -9,7 +9,6 @@
 #include <QSettings>
 #ifdef Q_OS_ANDROID
 #include <QJniObject>
-#include <QNativeInterface>
 #endif
 
 class OpenAIManager : public QObject {
@@ -27,9 +26,8 @@ public:
         m_model=s.value("ai/model","gpt-5-mini").toString();
         m_url=s.value("ai/url","https://api.openai.com/v1/responses").toString();
         #ifdef Q_OS_ANDROID
-        auto context=QNativeInterface::QAndroidApplication::context();
         QJniObject key=QJniObject::callStaticObjectMethod("com/mrt/jarvis/SpeechBridge","loadApiKey",
-            "(Landroid/content/Context;)Ljava/lang/String;",context);
+            "()Ljava/lang/String;");
         if(key.isValid()) m_key=key.toString();
 #else
         m_key=s.value("ai/key").toString();
@@ -48,9 +46,8 @@ public:
     Q_INVOKABLE void setApiKey(const QString &key){
         m_key=key.trimmed();
 #ifdef Q_OS_ANDROID
-        auto context=QNativeInterface::QAndroidApplication::context();
         const bool ok=QJniObject::callStaticMethod<jboolean>("com/mrt/jarvis/SpeechBridge","saveApiKey",
-            "(Landroid/content/Context;Ljava/lang/String;)Z",context,QJniObject::fromString(m_key).object());
+            "(Ljava/lang/String;)Z",QJniObject::fromString(m_key).object());
         m_status=ok?(m_key.isEmpty()?"API key missing":"API key saved securely"):"Could not secure API key";
 #else
         QSettings().setValue("ai/key",m_key);QSettings().sync();
@@ -61,8 +58,7 @@ public:
     Q_INVOKABLE void clearApiKey(){
         m_key.clear();
 #ifdef Q_OS_ANDROID
-        auto context=QNativeInterface::QAndroidApplication::context();
-        QJniObject::callStaticMethod<void>("com/mrt/jarvis/SpeechBridge","clearApiKey","(Landroid/content/Context;)V",context);
+        QJniObject::callStaticMethod<void>("com/mrt/jarvis/SpeechBridge","clearApiKey","()V");
 #else
         QSettings().remove("ai/key");QSettings().sync();
 #endif
