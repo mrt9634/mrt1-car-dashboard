@@ -83,6 +83,9 @@ private slots:
         emit dataReceived();
     }
 
+public:
+    void setMonitor(CanFrameMonitor *monitor) { m_monitor = monitor; }
+
 private:
     QSerialPort m_serial;
     QString m_port;
@@ -90,4 +93,5 @@ private:
     QString m_lastHex;
     QString m_timestamp;
     int m_baud=115200;
+    CanFrameMonitor *m_monitor=nullptr;
 };
