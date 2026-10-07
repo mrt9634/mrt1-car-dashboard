@@ -8,9 +8,9 @@ qt_add_executable(MRT1
  src/main.cpp src/VehicleDataProvider.h src/VehicleDataBackend.h
  src/CanProvider.h src/ObdProvider.h src/SpeechManager.h src/AudioNoiseFilter.h
  src/FactoryDiagnostics.h src/HardwareProbe.h src/ReadOnlySerialProbe.h
- src/AutoMatchManager.h src/GpsSpeedProvider.h src/VehicleSpeedRouter.h src/OpenAIManager.h src/LocalDatabase.h src/SetupManager.h)
+ src/AutoMatchManager.h src/GpsSpeedProvider.h src/VehicleSpeedRouter.h src/OpenAIManager.h src/LocalDatabase.h src/SetupManager.h src/CanFrameMonitor.h)
 qt_add_qml_module(MRT1 URI MRT1 VERSION 1.0
- QML_FILES qml/Main.qml qml/Dashboard.qml qml/Vehicle.qml qml/Settings.qml qml/Diagnostics.qml qml/AutoMatch.qml qml/Jarvis.qml qml/JarvisSettings.qml qml/Navigation.qml qml/Music.qml qml/Phone.qml qml/OptionalModules.qml)
+ QML_FILES qml/Main.qml qml/Dashboard.qml qml/Vehicle.qml qml/Settings.qml qml/Diagnostics.qml qml/AutoMatch.qml qml/Jarvis.qml qml/JarvisSettings.qml qml/Navigation.qml qml/Music.qml qml/Phone.qml qml/OptionalModules.qml qml/CanCapture.qml)
 target_link_libraries(MRT1 PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2 Qt6::Multimedia Qt6::Network Qt6::Sql Qt6::SerialPort Qt6::Positioning)
 if(ANDROID)
  set_target_properties(MRT1 PROPERTIES
