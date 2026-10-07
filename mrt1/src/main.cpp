@@ -5,6 +5,7 @@
 #include "VehicleDataBackend.h"
 #include "CanProvider.h"
 #include "ObdProvider.h"
+#include "SpeechManager.h"
 #include "LocalDatabase.h"
 #include "SetupManager.h"
 
@@ -20,6 +21,7 @@ int main(int argc,char *argv[])
     VehicleDataBackend vehicleBackend(&vehicleData);
     CanProvider canProvider(&vehicleData);
     ObdProvider obdProvider(&vehicleData);
+    SpeechManager speechManager;
     vehicleBackend.setDisconnected();
     canProvider.setOffline();
     obdProvider.setOffline();
@@ -31,6 +33,7 @@ int main(int argc,char *argv[])
     ctx->setContextProperty("vehicleBackend",&vehicleBackend);
     ctx->setContextProperty("canProvider",&canProvider);
     ctx->setContextProperty("obdProvider",&obdProvider);
+    ctx->setContextProperty("speechManager",&speechManager);
     ctx->setContextProperty("setupManager",&setupManager);
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/MRT1/qml/Main.qml")));
     if(engine.rootObjects().isEmpty()) return -1;
