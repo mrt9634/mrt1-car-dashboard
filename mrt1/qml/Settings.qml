@@ -10,6 +10,7 @@ Item {
   Button{text:"JARVIS / OPENAI";onClicked:pages.push(Qt.resolvedUrl("JarvisSettings.qml"))}
   Button{text:"AUTO MATCH MONITOR";onClicked:pages.push(Qt.resolvedUrl("AutoMatch.qml"))}
   Button{text:"DIAGNOSTICS";onClicked:pages.push(Qt.resolvedUrl("Diagnostics.qml"))}
+  Button{text:"CAN / MCU RAW CAPTURE";onClicked:pages.push(Qt.resolvedUrl("CanCapture.qml"))}
   Button{text:"OPTIONAL 3D / MIRRORING";onClicked:pages.push(Qt.resolvedUrl("OptionalModules.qml"))}
   Button{text:"BACK";onClicked:pages.pop()}
  }
