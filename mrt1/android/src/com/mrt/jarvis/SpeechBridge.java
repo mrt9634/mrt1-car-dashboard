@@ -11,12 +11,67 @@ import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyStore;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+import android.util.Base64;
 
 public final class SpeechBridge {
     private static SpeechRecognizer recognizer;
     private static TextToSpeech tts;
+    private static final String KEYSTORE = "AndroidKeyStore";
+    private static final String KEY_ALIAS = "MRT1_OpenAI_Key";
 
     private SpeechBridge() {}
+
+    private static SecretKey getKey() throws Exception {
+        KeyStore ks = KeyStore.getInstance(KEYSTORE);
+        ks.load(null);
+        if (!ks.containsAlias(KEY_ALIAS)) {
+            KeyGenerator kg = KeyGenerator.getInstance("AES", KEYSTORE);
+            kg.init(256);
+            kg.generateKey();
+        }
+        return ((KeyStore.SecretKeyEntry) ks.getEntry(KEY_ALIAS, null)).getSecretKey();
+    }
+
+    public static String loadApiKey(Context context) {
+        try {
+            android.content.SharedPreferences p = context.getSharedPreferences("mrt1_secure", Context.MODE_PRIVATE);
+            String packed = p.getString("openai_key", "");
+            if (packed.isEmpty()) return "";
+            byte[] all = Base64.decode(packed, Base64.DEFAULT);
+            byte[] iv = new byte[12];
+            System.arraycopy(all, 0, iv, 0, iv.length);
+            byte[] cipherText = new byte[all.length - iv.length];
+            System.arraycopy(all, iv.length, cipherText, 0, cipherText.length);
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, getKey(), new GCMParameterSpec(128, iv));
+            return new String(cipher.doFinal(cipherText), StandardCharsets.UTF_8);
+        } catch (Exception e) { return ""; }
+    }
+
+    public static boolean saveApiKey(Context context, String value) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, getKey());
+            byte[] iv = cipher.getIV();
+            byte[] encrypted = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
+            byte[] packed = new byte[iv.length + encrypted.length];
+            System.arraycopy(iv, 0, packed, 0, iv.length);
+            System.arraycopy(encrypted, 0, packed, iv.length, encrypted.length);
+            context.getSharedPreferences("mrt1_secure", Context.MODE_PRIVATE).edit()
+                    .putString("openai_key", Base64.encodeToString(packed, Base64.NO_WRAP)).apply();
+            return true;
+        } catch (Exception e) { return false; }
+    }
+
+    public static void clearApiKey(Context context) {
+        context.getSharedPreferences("mrt1_secure", Context.MODE_PRIVATE).edit().remove("openai_key").apply();
+    }
 
     public static boolean hasRecordPermission(Context context) {
         return context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
