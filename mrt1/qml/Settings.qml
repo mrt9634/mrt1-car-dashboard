@@ -13,6 +13,8 @@ Item {
   Button{text:"CAN / MCU RAW CAPTURE";onClicked:pages.push(Qt.resolvedUrl("CanCapture.qml"))}
   Button{text:"CAN DECODER";onClicked:pages.push(Qt.resolvedUrl("CanDecoder.qml"))}
   Button{text:"OPTIONAL 3D / MIRRORING";onClicked:pages.push(Qt.resolvedUrl("OptionalModules.qml"))}
+  Button{text:"CHECK UPDATES";onClicked:setupManager.checkForUpdates()}
+  Label{text:setupManager.status;color:"#7d8994";Layout.fillWidth:true;wrapMode:Text.Wrap}
   Button{text:"BACK";onClicked:pages.pop()}
  }
 }
