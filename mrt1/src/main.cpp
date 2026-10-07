@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include "VehicleDataProvider.h"
 #include "LocalDatabase.h"
+#include "SetupManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,9 +17,11 @@ int main(int argc, char *argv[])
     database.initialize();
 
     VehicleDataProvider vehicleData;
+    SetupManager setupManager;
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("vehicleData", &vehicleData);
+    engine.rootContext()->setContextProperty("setupManager", &setupManager);
 
     const QUrl url(QStringLiteral("qrc:/qt/qml/MRT1/qml/Main.qml"));
     QObject::connect(
