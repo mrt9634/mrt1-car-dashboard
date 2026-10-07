@@ -33,7 +33,8 @@ jobs:
           arch: android_armv7
           modules: 'qtshadertools qtmultimedia qtpositioning qtserialport'
           archives: 'qtbase qtdeclarative'
-          cache: true
+          cache-key-prefix: 'mrt1-qt-clean'
+          cache: false
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
