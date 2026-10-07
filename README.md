@@ -34,3 +34,16 @@ Optional/test modules retained for hardware testing:
 - Quick3D / Jeep 3D
 
 Design rule: core operation is offline-first. Optional online services must never block startup.
+
+
+## Safety / factory integration
+MRT1 does not write CAN configuration, MCU firmware, factory EEPROM, reverse-camera coding, or 360-camera settings. Factory diagnostics and serial/CAN capture are read-only until the exact vendor protocol for this head unit is identified.
+
+## CAN capture workflow
+1. Open Settings → Diagnostics and run the read-only hardware probe.
+2. Select a detected serial interface and baud rate.
+3. Open Settings → CAN / MCU RAW CAPTURE.
+4. Start capture and collect real RX frames.
+5. Only after real frames are captured should vehicle-signal mapping be added.
+
+No simulated vehicle values are used by the production data path.
