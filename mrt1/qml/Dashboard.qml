@@ -8,6 +8,28 @@ Item {
     Component.onCompleted: {
         if (setupManager.firstRun)
             setupManager.runInitialSetup()
+        gpsSpeed.start()
+        speedRouter.update(vehicleData.speed, gpsSpeed.speedKmh, vehicleData.connected, gpsSpeed.available)
+    }
+
+    Connections {
+        target: gpsSpeed
+        function onSpeedChanged() {
+            speedRouter.update(vehicleData.speed, gpsSpeed.speedKmh, vehicleData.connected, gpsSpeed.available)
+        }
+        function onStateChanged() {
+            speedRouter.update(vehicleData.speed, gpsSpeed.speedKmh, vehicleData.connected, gpsSpeed.available)
+        }
+    }
+
+    Connections {
+        target: vehicleData
+        function onSpeedChanged() {
+            speedRouter.update(vehicleData.speed, gpsSpeed.speedKmh, vehicleData.connected, gpsSpeed.available)
+        }
+        function onConnectedChanged() {
+            speedRouter.update(vehicleData.speed, gpsSpeed.speedKmh, vehicleData.connected, gpsSpeed.available)
+        }
     }
 
     Rectangle { anchors.fill: parent; color: "#05070a" }
@@ -89,7 +111,7 @@ Item {
 
                     Label {
                         Layout.fillWidth: true
-                        text: vehicleData.connected ? Math.round(vehicleData.speed) : "--"
+                        text: speedRouter.displaySpeedKmh >= 0 ? Math.round(speedRouter.displaySpeedKmh) : "--"
                         color: "white"
                         font.pixelSize: 86
                         font.bold: true
@@ -133,7 +155,7 @@ Item {
                         }
                         Item { Layout.fillWidth: true }
                         Label {
-                            text: vehicleData.source
+                            text: speedRouter.source === "NONE" ? vehicleData.source : speedRouter.source
                             color: "#65717d"
                             font.pixelSize: 12
                         }
@@ -176,7 +198,7 @@ Item {
                                 text: modelData
                                 Layout.fillWidth: true
                                 font.pixelSize: 11
-                                onClicked: if (modelData === "JARVIS") pages.push(Qt.resolvedUrl("Jarvis.qml"))
+                                onClicked: { if (modelData === "JARVIS") pages.push(Qt.resolvedUrl("Jarvis.qml")); else if (modelData === "SETTINGS") pages.push(Qt.resolvedUrl("Settings.qml")); else if (modelData === "VEHICLE") pages.push(Qt.resolvedUrl("Vehicle.qml")) }
                             }
                         }
                     }
