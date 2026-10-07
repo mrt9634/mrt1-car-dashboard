@@ -2,6 +2,10 @@
 #include <QObject>
 #include <QString>
 #include <QTimer>
+#ifdef Q_OS_ANDROID
+#include <QJniObject>
+#include <QNativeInterface>
+#endif
 
 class SpeechManager : public QObject {
     Q_OBJECT
@@ -19,10 +23,48 @@ public:
     QString recognizedText() const{return m_recognized;}
 
     void setLocale(const QString &v){m_locale=v.trimmed().isEmpty()?"fa-IR":v.trimmed();emit stateChanged();}
-    Q_INVOKABLE void startListening(){m_listening=true;m_status="Listening — Persian";emit stateChanged();}
-    Q_INVOKABLE void stopListening(){m_listening=false;m_status="Ready";emit stateChanged();}
-    Q_INVOKABLE void speak(const QString &text){if(text.trimmed().isEmpty())return;m_speaking=true;m_status="Speaking — Persian";emit stateChanged();QTimer::singleShot(1200,this,[this](){m_speaking=false;m_status="Ready";emit stateChanged();});}
-    Q_INVOKABLE void acceptRecognition(const QString &text){m_recognized=text.trimmed();m_listening=false;m_status=m_recognized.isEmpty()?"No speech recognized":"Speech recognized";emit recognizedTextChanged();emit stateChanged();}
+
+    Q_INVOKABLE void startListening(){
+#ifdef Q_OS_ANDROID
+        m_listening=true; m_status="Listening — "+m_locale; emit stateChanged();
+        auto context=QNativeInterface::QAndroidApplication::context();
+        QJniObject::callStaticMethod<void>("com/mrt/jarvis/SpeechBridge","startListening",
+                                            "(Landroid/content/Context;Ljava/lang/String;)V",
+                                            context,QJniObject::fromString(m_locale).object());
+#else
+        m_status="Android voice unavailable";emit stateChanged();
+#endif
+    }
+
+    Q_INVOKABLE void stopListening(){
+#ifdef Q_OS_ANDROID
+        QJniObject::callStaticMethod<void>("com/mrt/jarvis/SpeechBridge","stopListening","()V");
+#endif
+        m_listening=false;m_status="Ready";emit stateChanged();
+    }
+
+    Q_INVOKABLE void speak(const QString &text){
+        if(text.trimmed().isEmpty())return;
+#ifdef Q_OS_ANDROID
+        m_speaking=true;m_status="Speaking — "+m_locale;emit stateChanged();
+        auto context=QNativeInterface::QAndroidApplication::context();
+        QJniObject::callStaticMethod<void>("com/mrt/jarvis/SpeechBridge","speak",
+                                            "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V",
+                                            context,QJniObject::fromString(text).object(),
+                                            QJniObject::fromString(m_locale).object());
+#else
+        m_speaking=true;m_status="TTS unavailable";emit stateChanged();
+#endif
+        QTimer::singleShot(1500,this,[this](){m_speaking=false;m_status="Ready";emit stateChanged();});
+    }
+
+    Q_INVOKABLE void acceptRecognition(const QString &text){
+        m_recognized=text.trimmed();m_listening=false;
+        m_status=m_recognized.startsWith("ERROR:") ? m_recognized :
+                 (m_recognized.isEmpty()?"No speech recognized":"Speech recognized");
+        emit recognizedTextChanged();emit stateChanged();
+    }
+
 signals:
     void stateChanged();
     void recognizedTextChanged();
