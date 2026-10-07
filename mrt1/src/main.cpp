@@ -21,6 +21,7 @@
 #include "SetupManager.h"
 #include "CanFrameMonitor.h"
 #include "CanSignalDecoder.h"
+#include "LocalMusicManager.h"
 
 #ifdef Q_OS_ANDROID
 static SpeechManager *gSpeechManager = nullptr;
@@ -54,6 +55,7 @@ int main(int argc,char *argv[])
     ReadOnlySerialProbe serialProbe;
     CanFrameMonitor canFrameMonitor;
     CanSignalDecoder canDecoder;
+    LocalMusicManager localMusic;
     serialProbe.setMonitor(&canFrameMonitor);
     AutoMatchManager autoMatch;
     GpsSpeedProvider gpsSpeed;
