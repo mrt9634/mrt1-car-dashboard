@@ -22,6 +22,7 @@
 #include "CanFrameMonitor.h"
 #include "CanSignalDecoder.h"
 #include "LocalMusicManager.h"
+#include "PhoneManager.h"
 
 #ifdef Q_OS_ANDROID
 static SpeechManager *gSpeechManager = nullptr;
@@ -56,6 +57,7 @@ int main(int argc,char *argv[])
     CanFrameMonitor canFrameMonitor;
     CanSignalDecoder canDecoder;
     LocalMusicManager localMusic;
+    PhoneManager phoneManager;
     serialProbe.setMonitor(&canFrameMonitor);
     AutoMatchManager autoMatch;
     GpsSpeedProvider gpsSpeed;
@@ -85,6 +87,8 @@ int main(int argc,char *argv[])
     ctx->setContextProperty("setupManager",&setupManager);
     ctx->setContextProperty("canFrameMonitor",&canFrameMonitor);
     ctx->setContextProperty("canDecoder",&canDecoder);
+    ctx->setContextProperty("localMusic",&localMusic);
+    ctx->setContextProperty("phoneManager",&phoneManager);
 
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/MRT1/qml/Main.qml")));
     if(engine.rootObjects().isEmpty()) return -1;
