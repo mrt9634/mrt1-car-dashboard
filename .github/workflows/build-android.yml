@@ -96,6 +96,15 @@ jobs:
             -DANDROID_SDK_ROOT="$ANDROID_SDK_ROOT" \
             -DANDROID_PLATFORM=android-28
 
+      - name: Verify generated Android Gradle project
+        run: |
+          test -f build/android-build/build.gradle
+          echo "Generated android-build/build.gradle:"
+          sed -n '1,80p' build/android-build/build.gradle
+          grep -Eq 'compileSdk(Version)?[[:space:]]+33' build/android-build/build.gradle
+          grep -Eq 'minSdkVersion[[:space:]]+28' build/android-build/build.gradle
+          grep -Eq 'targetSdkVersion[[:space:]]+33' build/android-build/build.gradle
+
       - name: Build
         run: cmake --build build --config Release --parallel 2
 
