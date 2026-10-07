@@ -67,7 +67,9 @@ public:
 
     }
 
-    Q_INVOKABLE void acceptTtsDone(){ m_speaking=false; m_status="Ready"; emit stateChanged(); }\n\n    Q_INVOKABLE void acceptRecognition(const QString &text){
+    Q_INVOKABLE void acceptTtsDone(){ m_speaking=false; m_status="Ready"; emit stateChanged(); }
+
+    Q_INVOKABLE void acceptRecognition(const QString &text){
         m_recognized=text.trimmed();m_listening=false;
         m_status=m_recognized.startsWith("ERROR:") ? m_recognized :
                  (m_recognized.isEmpty()?"No speech recognized":"Speech recognized");
