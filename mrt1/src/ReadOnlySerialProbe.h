@@ -20,7 +20,6 @@ connect(&m_serial,&QSerialPort::readyRead,this,&ReadOnlySerialProbe::readAvailab
                 m_status=QStringLiteral("Serial error: ")+m_serial.errorString(); emit stateChanged();
             }
         });
-#endif
     }
 
     bool isOpen() const{return m_serial.isOpen();}
@@ -68,14 +67,12 @@ signals:
     void dataReceived();
 
 private slots:
-#if 1
     void readAvailable(){
         const QByteArray data=m_serial.readAll();
         if(data.isEmpty()) return;
         m_lastHex=data.toHex(' ').toUpper();
         emit dataReceived();
     }
-#endif
 
 private:
     QSerialPort m_serial;
