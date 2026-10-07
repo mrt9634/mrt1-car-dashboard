@@ -52,6 +52,17 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" \
             -DQt6_DIR="$QT_ROOT_DIR/lib/cmake/Qt6" \
+            -DQt6Core_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Core" \
+            -DQt6Gui_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Gui" \
+            -DQt6Qml_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Qml" \
+            -DQt6Quick_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Quick" \
+            -DQt6QuickControls2_DIR="$QT_ROOT_DIR/lib/cmake/Qt6QuickControls2" \
+            -DQt6Multimedia_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Multimedia" \
+            -DQt6Network_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Network" \
+            -DQt6Sql_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Sql" \
+            -DQt6SerialPort_DIR="$QT_ROOT_DIR/lib/cmake/Qt6SerialPort" \
+            -DQt6Positioning_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Positioning" \
+            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH \
             -DQT_HOST_PATH="$QT_HOST_PATH" \
             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=armeabi-v7a \
