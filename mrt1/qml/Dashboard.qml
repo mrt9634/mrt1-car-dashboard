@@ -10,81 +10,193 @@ Item {
             setupManager.runInitialSetup()
     }
 
-    Rectangle {
-        anchors.fill: parent
-        color: "#05070a"
+    Rectangle { anchors.fill: parent; color: "#05070a" }
+
+    Timer {
+        id: clockTimer
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: clockText.text = Qt.formatTime(new Date(), "HH:mm")
     }
 
-    RowLayout {
+    ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 24
-        spacing: 18
+        anchors.margins: 22
+        spacing: 12
 
-        ColumnLayout {
+        RowLayout {
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.preferredHeight: 64
 
-            Label {
-                text: "MRT1"
-                color: "white"
-                font.pixelSize: 28
-                font.bold: true
-            }
-
-            Label {
-                text: Qt.formatTime(new Date(), "HH:mm")
-                color: "white"
-                font.pixelSize: 54
-                Timer {
-                    interval: 1000
-                    running: true
-                    repeat: true
-                    onTriggered: parent.text = Qt.formatTime(new Date(), "HH:mm")
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 0
+                Label {
+                    text: "MRT1"
+                    color: "white"
+                    font.pixelSize: 25
+                    font.bold: true
+                }
+                Label {
+                    text: "DIGITAL COCKPIT"
+                    color: "#65717d"
+                    font.pixelSize: 11
                 }
             }
 
-            Label {
-                text: Qt.formatDate(new Date(), "yyyy/MM/dd")
-                color: "#aab4c0"
-                font.pixelSize: 20
-            }
-
-            Item { Layout.fillHeight: true }
-
-            Label {
-                text: vehicleData.connected ? "CAN / OBD CONNECTED" : "CAN / OBD OFFLINE"
-                color: vehicleData.connected ? "#7CFF9B" : "#ffb86b"
-                font.pixelSize: 18
+            ColumnLayout {
+                spacing: 0
+                Label {
+                    id: clockText
+                    text: Qt.formatTime(new Date(), "HH:mm")
+                    color: "white"
+                    font.pixelSize: 28
+                    font.bold: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                Label {
+                    text: Qt.formatDate(new Date(), "yyyy/MM/dd")
+                    color: "#7d8994"
+                    font.pixelSize: 12
+                    Layout.alignment: Qt.AlignRight
+                }
             }
         }
 
-        ColumnLayout {
-            Layout.preferredWidth: 420
+        Rectangle {
+            Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 14
+            radius: 18
+            color: "#0b0f14"
+            border.color: "#1c2731"
+            border.width: 1
 
-            Label {
-                text: Math.round(vehicleData.speed) + " km/h"
-                color: "white"
-                font.pixelSize: 58
-                horizontalAlignment: Text.AlignHCenter
-                Layout.fillWidth: true
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 20
+                spacing: 22
+
+                ColumnLayout {
+                    Layout.preferredWidth: 280
+                    Layout.fillHeight: true
+
+                    Label {
+                        text: "SPEED"
+                        color: "#6e7b87"
+                        font.pixelSize: 13
+                    }
+
+                    Label {
+                        Layout.fillWidth: true
+                        text: vehicleData.connected ? Math.round(vehicleData.speed) : "--"
+                        color: "white"
+                        font.pixelSize: 86
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+
+                    Label {
+                        text: "km/h"
+                        color: "#8e9aa5"
+                        font.pixelSize: 17
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+
+                    Item { Layout.fillHeight: true }
+
+                    Label {
+                        text: "RPM"
+                        color: "#6e7b87"
+                        font.pixelSize: 13
+                    }
+                    Label {
+                        text: vehicleData.connected ? Math.round(vehicleData.rpm) : "--"
+                        color: "#d8e0e7"
+                        font.pixelSize: 30
+                        font.bold: true
+                    }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    spacing: 10
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Label {
+                            text: canProvider.connected ? "CAN ONLINE" : "CAN OFFLINE"
+                            color: canProvider.connected ? "#73f5a0" : "#ffad66"
+                            font.pixelSize: 14
+                            font.bold: true
+                        }
+                        Item { Layout.fillWidth: true }
+                        Label {
+                            text: vehicleData.source
+                            color: "#65717d"
+                            font.pixelSize: 12
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        radius: 14
+                        color: "#070a0e"
+
+                        ColumnLayout {
+                            anchors.centerIn: parent
+                            spacing: 7
+                            Label {
+                                text: "VEHICLE DATA"
+                                color: "#687681"
+                                font.pixelSize: 12
+                            }
+                            Label {
+                                text: vehicleData.connected ? "LIVE" : "NO DATA"
+                                color: vehicleData.connected ? "#73f5a0" : "#ffad66"
+                                font.pixelSize: 30
+                                font.bold: true
+                            }
+                            Label {
+                                text: "No simulated vehicle values"
+                                color: "#596671"
+                                font.pixelSize: 12
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+                        Repeater {
+                            model: ["VEHICLE","NAVIGATION","MUSIC","PHONE","JARVIS","SETTINGS"]
+                            delegate: Button {
+                                text: modelData
+                                Layout.fillWidth: true
+                                font.pixelSize: 11
+                            }
+                        }
+                    }
+                }
             }
+        }
 
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 38
             Label {
-                text: Math.round(vehicleData.rpm) + " RPM"
-                color: "#c7d0da"
-                font.pixelSize: 24
-                horizontalAlignment: Text.AlignHCenter
-                Layout.fillWidth: true
+                text: speechManager.status
+                color: "#7d8994"
+                font.pixelSize: 12
             }
-
-            Button { text: "VEHICLE" }
-            Button { text: "NAVIGATION" }
-            Button { text: "MUSIC" }
-            Button { text: "PHONE" }
-            Button { text: "JARVIS" }
-            Button { text: "SETTINGS" }
+            Item { Layout.fillWidth: true }
+            Label {
+                text: setupManager.status
+                color: "#596671"
+                font.pixelSize: 11
+            }
         }
     }
 }
