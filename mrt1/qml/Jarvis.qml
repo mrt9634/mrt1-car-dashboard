@@ -12,7 +12,7 @@ Item {
         RowLayout {
             Button { text:"SEND"; enabled:!openai.busy; onClicked:{openai.ask(input.text); input.text=""} }
             Button { text:speechManager.listening ? "LISTENING..." : "VOICE"; enabled:!speechManager.speaking; onClicked: speechManager.listening ? speechManager.stopListening() : speechManager.startListening() }
-            Button { text:"BACK"; onClicked:pages.pop() }
+            Button { text:"BACK"; onClicked:StackView.view.pop() }
         }
         Connections {
     target: speechManager
