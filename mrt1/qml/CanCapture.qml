@@ -4,7 +4,7 @@ import QtQuick.Layouts
 Item{anchors.fill:parent
  Rectangle{anchors.fill:parent;color:"#05070a"}
  ColumnLayout{anchors.fill:parent;anchors.margins:18;spacing:9
-  RowLayout{Layout.fillWidth:true;Label{text:"CAN / MCU RAW CAPTURE";color:"white";font.pixelSize:23;font.bold:true};Item{Layout.fillWidth:true};Button{text:"BACK";onClicked:pages.pop()}}
+  RowLayout{Layout.fillWidth:true;Label{text:"CAN / MCU RAW CAPTURE";color:"white";font.pixelSize:23;font.bold:true};Item{Layout.fillWidth:true};Button{text:"BACK";onClicked:StackView.view.pop()}}
   Label{text:canFrameMonitor.status+" • "+canFrameMonitor.frameCount+" frames";color:"#7d8994"}
   RowLayout{Layout.fillWidth:true
    Label{text:"BAUD";color:"#65717d"}
