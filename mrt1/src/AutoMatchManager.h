@@ -6,6 +6,7 @@
 #include <QScreen>
 #include <QGuiApplication>
 #include <QSettings>
+#include <QDateTime>
 
 class AutoMatchManager : public QObject {
     Q_OBJECT
