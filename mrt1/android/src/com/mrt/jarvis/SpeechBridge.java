@@ -38,9 +38,9 @@ public final class SpeechBridge {
         return ((KeyStore.SecretKeyEntry) ks.getEntry(KEY_ALIAS, null)).getSecretKey();
     }
 
-    public static String loadApiKey(Context context) {
+    private static Context qtContext() {\n        android.app.Activity activity = org.qtproject.qt.android.QtNative.activity();\n        return activity != null ? activity : null;\n    }\n\n    public static String loadApiKey() {
         try {
-            String packed=context.getSharedPreferences("mrt1_secure",Context.MODE_PRIVATE).getString("openai_key","");
+            String packed=qtContext().getSharedPreferences("mrt1_secure",Context.MODE_PRIVATE).getString("openai_key","");
             if(packed.isEmpty()) return "";
             byte[] all=Base64.decode(packed,Base64.DEFAULT), iv=new byte[12];
             System.arraycopy(all,0,iv,0,12);
@@ -52,7 +52,7 @@ public final class SpeechBridge {
         } catch(Exception e){ return ""; }
     }
 
-    public static boolean saveApiKey(Context context,String value) {
+    public static boolean saveApiKey(String value) {
         try {
             Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE,getKey());
@@ -60,13 +60,13 @@ public final class SpeechBridge {
             byte[] packed=new byte[iv.length+encrypted.length];
             System.arraycopy(iv,0,packed,0,iv.length);
             System.arraycopy(encrypted,0,packed,iv.length,encrypted.length);
-            context.getSharedPreferences("mrt1_secure",Context.MODE_PRIVATE).edit()
+            qtContext().getSharedPreferences("mrt1_secure",Context.MODE_PRIVATE).edit()
                 .putString("openai_key",Base64.encodeToString(packed,Base64.NO_WRAP)).apply();
             return true;
         } catch(Exception e){ return false; }
     }
 
-    public static void clearApiKey(Context context){
+    public static void clearApiKey(){
         context.getSharedPreferences("mrt1_secure",Context.MODE_PRIVATE).edit().remove("openai_key").apply();
     }
 
@@ -81,7 +81,7 @@ public final class SpeechBridge {
         } catch (Exception ignored) {}
     }
 
-    public static void speak(Context context,String text,String localeTag){
+    public static void speak(String text,String localeTag){\n        Context context = qtContext();\n        if (context == null) return;
         if(tts==null){
             tts=new TextToSpeech(context.getApplicationContext(),status->{});
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener(){
@@ -96,7 +96,7 @@ public final class SpeechBridge {
         tts.speak(text,TextToSpeech.QUEUE_FLUSH,null,"MRT1_JARVIS");
     }
 
-    public static void startListening(Context context,String localeTag){
+    public static void startListening(String localeTag){\n        Context context = qtContext();\n        if (context == null) { nativeResult("ERROR: Android context unavailable"); return; }
         if(!SpeechRecognizer.isRecognitionAvailable(context)){nativeResult("ERROR: Speech recognition unavailable");return;}
         if(recognizer!=null) recognizer.destroy();
         recognizer=SpeechRecognizer.createSpeechRecognizer(context.getApplicationContext());
