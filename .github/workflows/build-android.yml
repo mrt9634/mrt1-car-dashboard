@@ -65,6 +65,9 @@ jobs:
           "$QT_ROOT_DIR/bin/qt-cmake" -S mrt1 -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DQT_HOST_PATH="$QT_HOST_PATH" \
+            -DQt6_DIR="$QT_ROOT_DIR/lib/cmake/Qt6" \
+            -DQt6Core_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Core" \
+            -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR/lib/cmake/Qt6;$QT_ROOT_DIR/lib/cmake/Qt6Core" \
             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=armeabi-v7a \
             -DANDROID_PLATFORM=android-28
