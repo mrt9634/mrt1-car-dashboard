@@ -19,6 +19,7 @@
 #include "OpenAIManager.h"
 #include "LocalDatabase.h"
 #include "SetupManager.h"
+#include "CanFrameMonitor.h"
 
 #ifdef Q_OS_ANDROID
 static SpeechManager *gSpeechManager = nullptr;
@@ -55,6 +56,7 @@ int main(int argc,char *argv[])
     VehicleSpeedRouter speedRouter;
     OpenAIManager openai;
     SetupManager setupManager;
+    CanFrameMonitor canFrameMonitor;
 
     vehicleBackend.setDisconnected();
     canProvider.setOffline();
