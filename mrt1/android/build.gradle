@@ -31,7 +31,7 @@ android {
     defaultConfig {
         resConfig "en"
         minSdkVersion 23
-        targetSdkVersion 28
+        targetSdkVersion 31
         ndk.abiFilters = ["armeabi-v7a"]
     }
 }
