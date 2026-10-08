@@ -108,6 +108,34 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel 2
 
+      - name: Sign APK for Android installation
+        run: |
+          set -e
+          APK_SIGNER="$ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner"
+          KEYSTORE="$RUNNER_TEMP/mrt1-debug.keystore"
+          test -x "$APK_SIGNER"
+          keytool -genkeypair -v \\
+            -keystore "$KEYSTORE" \\
+            -storepass android \\
+            -keypass android \\
+            -alias androiddebugkey \\
+            -keyalg RSA \\
+            -keysize 2048 \\
+            -validity 10000 \\
+            -dname "CN=Android Debug,O=Android,C=US"
+          APK_COUNT=0
+          while IFS= read -r apk; do
+            echo "Signing $apk"
+            "$APK_SIGNER" sign \\
+              --ks "$KEYSTORE" \\
+              --ks-pass pass:android \\
+              --key-pass pass:android \\
+              "$apk"
+            "$APK_SIGNER" verify --verbose "$apk"
+            APK_COUNT=$((APK_COUNT + 1))
+          done < <(find build -type f -name "*.apk" -print)
+          test "$APK_COUNT" -gt 0
+
       - name: Find APK
         run: |
           find build -type f -name "*.apk" -print
