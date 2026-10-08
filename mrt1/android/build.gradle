@@ -30,7 +30,7 @@ android {
     aaptOptions { noCompress 'rcc' }
     defaultConfig {
         resConfig "en"
-        minSdkVersion 28
+        minSdkVersion 23
         targetSdkVersion 28
         ndk.abiFilters = ["armeabi-v7a"]
     }
