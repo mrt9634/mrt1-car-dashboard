@@ -1,0 +1,51 @@
+name: MRT1 Installer Compatibility Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-33 build-tools;33.0.2'
+
+      - name: Install Gradle 7.6.1
+        run: |
+          curl -fsSL https://services.gradle.org/distributions/gradle-7.6.1-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /opt
+          echo "/opt/gradle-7.6.1/bin" >> "$GITHUB_PATH"
+          gradle --version
+
+      - name: Build test APK
+        run: gradle -p installer-test clean assembleRelease --no-daemon
+
+      - name: Sign test APK
+        run: |
+          set -e
+          APK="installer-test/app/build/outputs/apk/release/app-release-unsigned.apk"
+          SIGNER="$ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner"
+          KEYSTORE="$RUNNER_TEMP/mrt1-test.keystore"
+          test -f "$APK"
+          test -x "$SIGNER"
+          keytool -genkeypair -v -keystore "$KEYSTORE" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=MRT1 Install Test,O=MRT1,C=US"
+          "$SIGNER" sign --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled false --v4-signing-enabled false --ks "$KEYSTORE" --ks-pass pass:android --key-pass pass:android "$APK"
+          "$SIGNER" verify --verbose "$APK"
+
+      - name: Upload test APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MRT1-Installer-Test-APK
+          path: installer-test/app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: error
