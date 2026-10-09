@@ -25,14 +25,14 @@ jobs:
           java-version: '17'
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@v4.1.1
         with:
           version: '6.5.3'
           host: linux
           target: android
           arch: android_x86_64
           modules: 'qtshadertools qtmultimedia qtpositioning qtserialport'
-          archives: 'qtbase qtdeclarative icu'
+          archives: 'qtbase qtdeclarative qtmultimedia qtpositioning qtserialport qtshadertools icu'
           cache-key-prefix: 'mrt1-qt-clean'
           cache: false
 
@@ -43,6 +43,7 @@ jobs:
 
       - name: Verify Android SDK and pin Qt-compatible NDK
         run: |
+          set -e
           command -v sdkmanager
           sdkmanager --version
           if [ -z "$ANDROID_SDK_ROOT" ]; then export ANDROID_SDK_ROOT="$ANDROID_HOME"; fi
@@ -62,6 +63,7 @@ jobs:
 
       - name: Verify Qt CMake package
         run: |
+          set -e
           test -f "$QT_ROOT_DIR/lib/cmake/Qt6/Qt6Config.cmake"
           test -f "$QT_ROOT_DIR/lib/cmake/Qt6Core/Qt6CoreConfig.cmake"
           echo "Qt6 Core package found"
@@ -69,6 +71,7 @@ jobs:
 
       - name: Configure Qt host runtime
         run: |
+          set -e
           test -n "$QT_HOST_PATH"
           test -d "$QT_HOST_PATH/lib"
           echo "Qt host path: $QT_HOST_PATH"
@@ -77,6 +80,7 @@ jobs:
 
       - name: Configure
         run: |
+          set -e
           chmod +x "$QT_ROOT_DIR/bin/qt-cmake"
           if [ -z "$ANDROID_SDK_ROOT" ]; then export ANDROID_SDK_ROOT="$ANDROID_HOME"; fi
           if [ -z "$ANDROID_HOME" ]; then export ANDROID_HOME="$ANDROID_SDK_ROOT"; fi
@@ -106,7 +110,9 @@ jobs:
             -DANDROID_PLATFORM=android-23
 
       - name: Build
-        run: cmake --build build --config Release --parallel 2
+        run: |
+          set -e
+          cmake --build build --config Release --parallel 2
 
       - name: Sign APK for Android installation
         run: |
@@ -126,6 +132,7 @@ jobs:
 
       - name: Find APK
         run: |
+          set -e
           find build -type f -name "*.apk" -print
           test -n "$(find build -type f -name '*.apk' -print -quit)"
 
