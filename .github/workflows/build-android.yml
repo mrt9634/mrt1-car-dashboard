@@ -30,7 +30,7 @@ jobs:
           version: '6.5.3'
           host: linux
           target: android
-         arch: android_armv7
+         arch: android_x86_64
           modules: 'qtshadertools qtmultimedia qtpositioning qtserialport'
           archives: 'qtbase qtdeclarative icu'
           cache-key-prefix: 'mrt1-qt-clean'
@@ -101,7 +101,7 @@ jobs:
             -DQt6Core_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Core" \
             -DCMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH" \
             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
-            -DANDROID_ABI=armeabi-v7a \
+            -DANDROID_ABI=x86_64 \
             -DANDROID_SDK_ROOT="$ANDROID_SDK_ROOT" \
             -DANDROID_PLATFORM=android-23
 
