@@ -5,6 +5,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
+# ─── Force Android ABIs BEFORE find_package() ─────────────────
+# Qt deployment reads QT_ANDROID_ABIS during find_package() and
+# qt_add_executable(). Setting it here ensures .so files are
+# packaged for x86_64 (MemuPlay/Nox) instead of armeabi-v7a.
+if(ANDROID)
+    set(QT_ANDROID_ABIS "x86_64" CACHE STRING "Android ABIs to build" FORCE)
+endif()
+
 # ─── Qt6 discovery on Android ─────────────────────────────────
 if(ANDROID AND DEFINED ENV{QT_ROOT_DIR})
     set(MRT1_QT_PREFIX "$ENV{QT_ROOT_DIR}")
@@ -12,7 +20,7 @@ if(ANDROID AND DEFINED ENV{QT_ROOT_DIR})
     set(Qt6_DIR "${MRT1_QT_CMAKE}/Qt6" CACHE PATH "" FORCE)
 
     # Register every installed Qt6*/CMake package directory explicitly
-    # so find_package() resolves Core/Gui/Qml/Quick and private deps.
+    # so find_package() can resolve Core/Gui/Qml/Quick and their deps.
     file(GLOB MRT1_QT_PACKAGE_CONFIGS
         "${MRT1_QT_CMAKE}/Qt6*/Qt6*Config.cmake")
     foreach(MRT1_QT_CONFIG IN LISTS MRT1_QT_PACKAGE_CONFIGS)
