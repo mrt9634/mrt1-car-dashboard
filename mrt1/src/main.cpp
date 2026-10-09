@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
     engine.load(mainUrl);
 
     LOGI("STEP 9: engine.load() returned");
-    LOGI("STEP 9: rootObjects().size() = %d", engine.rootObjects().size());
+    LOGI("STEP 9: rootObjects().size() = %lld", (long long)engine.rootObjects().size());
 
     if (engine.rootObjects().isEmpty()) {
         LOGE("STEP 9: rootObjects is EMPTY — QML failed to load!");
