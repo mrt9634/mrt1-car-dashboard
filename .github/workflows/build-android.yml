@@ -25,7 +25,7 @@ jobs:
           java-version: '17'
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4.1.1
+        uses: jurplel/install-qt-action@v4.2.2
         with:
           version: '6.5.3'
           host: linux
