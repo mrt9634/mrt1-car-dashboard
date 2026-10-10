@@ -3,7 +3,6 @@
 #include <QQmlApplicationEngine>
 #include <QCoreApplication>
 #include <QDebug>
-#include <QTimer>
 
 #ifdef Q_OS_ANDROID
 #include <QJniObject>
@@ -34,6 +33,7 @@
 #include "CanSignalDecoder.h"
 #include "LocalMusicManager.h"
 #include "PhoneManager.h"
+#include "RestartManager.h"
 
 #ifdef Q_OS_ANDROID
 static SpeechManager *gSpeechManager = nullptr;
@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
     VehicleSpeedRouter speedRouter;
     OpenAIManager openai;
     SetupManager setupManager;
+    RestartManager restartManager;
     LOGI("STEP 4: All providers created");
 
     LOGI("STEP 5: Setting initial states...");
@@ -107,7 +108,6 @@ int main(int argc, char *argv[])
     LOGI("STEP 6: Creating QQmlApplicationEngine...");
     QQmlApplicationEngine engine;
 
-    // Catch QML errors
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
                      &app, []() {
         LOGE("QML object creation FAILED");
@@ -116,23 +116,24 @@ int main(int argc, char *argv[])
 
     LOGI("STEP 7: Setting context properties...");
     auto *ctx = engine.rootContext();
-    ctx->setContextProperty("vehicleData",      &vehicleData);
-    ctx->setContextProperty("vehicleBackend",   &vehicleBackend);
-    ctx->setContextProperty("canProvider",      &canProvider);
-    ctx->setContextProperty("obdProvider",      &obdProvider);
-    ctx->setContextProperty("speechManager",    &speechManager);
+    ctx->setContextProperty("vehicleData",       &vehicleData);
+    ctx->setContextProperty("vehicleBackend",    &vehicleBackend);
+    ctx->setContextProperty("canProvider",       &canProvider);
+    ctx->setContextProperty("obdProvider",       &obdProvider);
+    ctx->setContextProperty("speechManager",     &speechManager);
     ctx->setContextProperty("factoryDiagnostics",&factoryDiagnostics);
-    ctx->setContextProperty("hardwareProbe",    &hardwareProbe);
-    ctx->setContextProperty("serialProbe",      &serialProbe);
-    ctx->setContextProperty("autoMatch",        &autoMatch);
-    ctx->setContextProperty("gpsSpeed",         &gpsSpeed);
-    ctx->setContextProperty("speedRouter",      &speedRouter);
-    ctx->setContextProperty("openai",           &openai);
-    ctx->setContextProperty("setupManager",     &setupManager);
-    ctx->setContextProperty("canFrameMonitor",  &canFrameMonitor);
-    ctx->setContextProperty("canDecoder",       &canDecoder);
-    ctx->setContextProperty("localMusic",       &localMusic);
-    ctx->setContextProperty("phoneManager",     &phoneManager);
+    ctx->setContextProperty("hardwareProbe",     &hardwareProbe);
+    ctx->setContextProperty("serialProbe",       &serialProbe);
+    ctx->setContextProperty("autoMatch",         &autoMatch);
+    ctx->setContextProperty("gpsSpeed",          &gpsSpeed);
+    ctx->setContextProperty("speedRouter",       &speedRouter);
+    ctx->setContextProperty("openai",            &openai);
+    ctx->setContextProperty("setupManager",      &setupManager);
+    ctx->setContextProperty("canFrameMonitor",   &canFrameMonitor);
+    ctx->setContextProperty("canDecoder",        &canDecoder);
+    ctx->setContextProperty("localMusic",        &localMusic);
+    ctx->setContextProperty("phoneManager",      &phoneManager);
+    ctx->setContextProperty("restartManager",    &restartManager);
     LOGI("STEP 7: All context properties set");
 
     const QUrl mainUrl(QStringLiteral("qrc:/qt/qml/MRT1/qml/Main.qml"));
@@ -141,7 +142,7 @@ int main(int argc, char *argv[])
     engine.load(mainUrl);
 
     LOGI("STEP 9: engine.load() returned");
-    LOGI("STEP 9: rootObjects().size() = %lld", (long long)engine.rootObjects().size());
+    LOGI("STEP 9: rootObjects().size() = %d", engine.rootObjects().size());
 
     if (engine.rootObjects().isEmpty()) {
         LOGE("STEP 9: rootObjects is EMPTY — QML failed to load!");
