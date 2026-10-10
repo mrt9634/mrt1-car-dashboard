@@ -90,118 +90,89 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel 2
 
-      # ═══════════════════════════════════════════════════════
-      # FIX: Force-copy .so files into the location Qt expects
-      # ═══════════════════════════════════════════════════════
-      - name: Fix ABI deployment — force copy .so files
+      - name: Debug info
+        run: |
+          echo "════════ .so files ════════"
+          find build -name "*.so" -type f 2>/dev/null || echo "NONE"
+          echo ""
+          echo "════════ deployment-settings.json ════════"
+          cat build/android-MRT1-deployment-settings.json 2>/dev/null || echo "NOT FOUND"
+          echo ""
+          echo "════════ android-build/libs ════════"
+          ls -laR build/android-build/libs/ 2>/dev/null || echo "NOT FOUND"
+
+      - name: Fix ABI in deployment settings
         run: |
           set -e
-          echo "════════ Before fix: where are the .so files? ════════"
-          find build -name "libMRT1*.so" -type f || echo "none found"
-          echo "════════ android-build contents ════════"
-          ls -laR build/android-build/ 2>/dev/null | head -40 || echo "no android-build dir"
-          
-          echo "════════ Checking deployment-settings.json ABI ════════"
-          if [ -f build/android-MRT1-deployment-settings.json ]; then
-            cat build/android-MRT1-deployment-settings.json | python3 -c "import sys,json; d=json.load(sys.stdin); print('ABIs:', d.get('android',{}).get('abi', 'unknown'))" 2>/dev/null || echo "could not parse"
-          fi
-          
-          echo "════════ FIX: Patches deployment-settings.json ════════"
-          # Fix the ABI in deployment-settings.json if it's wrong
-          if [ -f build/android-MRT1-deployment-settings.json ]; then
-            python3 << 'PYEOF'
-import json
-import sys
-
-path = 'build/android-MRT1-deployment-settings.json'
-with open(path, 'r') as f:
-    data = json.load(f)
-
-if 'android' in data:
-    # Force ABI to x86_64
-    data['android']['abi'] = 'x86_64'
-    print("Patched ABI to: x86_64")
-
-    # Also patch buildABIs if exists
-    if 'buildABIs' in data['android']:
-        data['android']['buildABIs'] = ['x86_64']
-        print("Patched buildABIs to: ['x86_64']")
-
-with open(path, 'w') as f:
-    json.dump(data, f, indent=2)
-
-print("Deployment settings patched")
-PYEOF
-            cat build/android-MRT1-deployment-settings.json | head -30
-          fi
-          
-          echo "════════ Re-run Qt deployment with patched settings ════════"
-          # Find Qt's androiddeployqt
-          ANDROIDDEPLOYQT="$HOME/Qt/6.5.3/gcc_64/bin/androiddeployqt"
-          if [ ! -x "$ANDROIDDEPLOYQT" ]; then
-            ANDROIDDEPLOYQT="$HOME/Qt/6.5.3/android_x86_64/bin/androiddeployqt"
-          fi
-          
-          if [ -x "$ANDROIDDEPLOYQT" ]; then
-            echo "Found androiddeployqt: $ANDROIDDEPLOYQT"
-            # Clean previous android-build
-            rm -rf build/android-build
-            mkdir -p build/android-build
-            
-            # Re-deploy with correct ABI
-            "$ANDROIDDEPLOYQT" \
-              --input build/android-MRT1-deployment-settings.json \
-              --output build/android-build \
-              --android-platform android-33 \
-              --gradle \
-              --release 2>&1 | tail -30 || echo "androiddeployqt failed, continuing..."
+          SETTINGS="build/android-MRT1-deployment-settings.json"
+          if [ -f "$SETTINGS" ]; then
+            echo "Settings file found, patching ABI..."
+            python3 -c "import json; f='$SETTINGS'; d=json.load(open(f)); d['android']['abi']='x86_64'; json.dump(d, open(f,'w'), indent=2); print('Patched ABI to x86_64')"
+            echo "===== After patch ====="
+            cat "$SETTINGS" | head -40
           else
-            echo "androiddeployqt not found, will try alternative approach"
+            echo "Settings file not found!"
           fi
 
-      - name: Manual .so copy fallback
+      - name: Force-copy .so files
         run: |
           set -e
-          echo "════════ Manual .so copy fallback ════════"
+          QT_LIBS="$HOME/Qt/6.5.3/android_x86_64/lib"
+          TARGET="build/android-build/libs/x86_64"
           
-          # Find the .so file(s)
-          LIBMRT1=$(find build -name "libMRT1_x86_64.so" -type f | head -1)
-          echo "Found: $LIBMRT1"
+          echo "Creating target dir: $TARGET"
+          mkdir -p "$TARGET"
           
-          if [ -z "$LIBMRT1" ]; then
-            echo "ERROR: libMRT1_x86_64.so not found!"
-            find build -name "*.so" -type f || echo "no .so files at all"
+          echo "Looking for libMRT1*.so..."
+          MAIN_SO=$(find build -name "libMRT1*.so" -type f | head -1)
+          if [ -n "$MAIN_SO" ]; then
+            echo "Found: $MAIN_SO"
+            cp -v "$MAIN_SO" "$TARGET/"
+          else
+            echo "ERROR: libMRT1*.so not found!"
             exit 1
           fi
           
-          # Ensure target dir exists
-          mkdir -p build/android-build/libs/x86_64
+          echo "Copying Qt libs..."
+          find "$QT_LIBS" -maxdepth 1 -name "libQt6*.so" -exec cp -v {} "$TARGET/" \; 2>/dev/null || true
           
-          # Copy main lib
-          cp "$LIBMRT1" build/android-build/libs/x86_64/
-          echo "Copied: $(ls -la build/android-build/libs/x86_64/)"
+          echo "Copying libc++_shared.so..."
+          find "$QT_LIBS" -name "libc++_shared.so" -exec cp -v {} "$TARGET/" \; 2>/dev/null || true
           
-          # Copy Qt libs
-          QT_LIBS="$HOME/Qt/6.5.3/android_x86_64/lib"
-          echo "Qt libs dir: $QT_LIBS"
-          ls -la "$QT_LIBS"/*.so 2>/dev/null | head -5 || echo "no Qt .so directly"
+          echo "===== Final content of target ====="
+          ls -la "$TARGET/"
           
-          # Copy needed Qt .so files
-          find "$QT_LIBS" -maxdepth 1 -name "libQt6*.so" -exec cp {} build/android-build/libs/x86_64/ \; 2>/dev/null || true
-          
-          echo "════════ After copy ════════"
-          ls -la build/android-build/libs/x86_64/ | head -30
+          echo "===== Total size ====="
+          du -sh "$TARGET/"
 
-      - name: Debug APK contents
+      - name: Rebuild APK with copied libs
         run: |
-          echo "════════ Listing android-build/libs ════════"
-          ls -laR build/android-build/libs/ 2>/dev/null || echo "no libs dir"
+          set -e
+          cd build/android-build
+          
+          echo "===== APK build.gradle exists? ====="
+          ls -la build.gradle 2>/dev/null || echo "no build.gradle"
+          
+          echo "===== Running gradle assembleRelease ====="
+          chmod +x gradlew 2>/dev/null || true
+          
+          if [ -f gradlew ]; then
+            ./gradlew assembleRelease --no-daemon 2>&1 | tail -30 || echo "gradle failed"
+          else
+            echo "gradlew not found, trying gradle directly"
+            gradle assembleRelease --no-daemon 2>&1 | tail -30 || echo "gradle failed"
+          fi
+
+      - name: Debug final APK
+        run: |
+          echo "════════ All APKs found ════════"
+          find build -name "*.apk" -type f -exec ls -lh {} \;
           echo ""
-          echo "════════ All .so files in build ════════"
-          find build -name "*.so" -type f 2>/dev/null | head -20
-          echo ""
-          echo "════════ APK contents ════════"
-          find build -name "*.apk" -type f -exec unzip -l {} \; 2>/dev/null | head -30
+          echo "════════ Contents of each APK ════════"
+          for apk in $(find build -name "*.apk" -type f); do
+            echo "===== $apk ====="
+            unzip -l "$apk" 2>/dev/null | head -30
+          done
 
       - name: Sign APK
         run: |
