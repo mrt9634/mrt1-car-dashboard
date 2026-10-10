@@ -24,7 +24,6 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # ─── نصب مستقیم Python و aqtinstall (بدون install-qt-action) ───
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -33,131 +32,76 @@ jobs:
       - name: Install aqtinstall
         run: |
           python -m pip install --upgrade pip
-          python -m pip install "aqtinstall==3.2.0"  # استفاده از نسخه پایدار
+          python -m pip install "aqtinstall==3.2.0"
 
-      - name: Install Qt 6.5.3 for Android x86_64
+      - name: Install Qt 6.5.3
         run: |
           set -e
           mkdir -p "$HOME/Qt"
-          cd "$HOME/Qt"
-
-          # نصب Qt برای هدف اندروید (x86_64)
           python -m aqt install-qt linux android 6.5.3 android_x86_64 \
             --outputdir "$HOME/Qt" \
             --modules qtshadertools qtmultimedia qtpositioning qtserialport
-
-          # نصب Qt هاست (برای ابزارهای Qt ضروری است)
           python -m aqt install-qt linux desktop 6.5.3 gcc_64 \
             --outputdir "$HOME/Qt" \
             --modules qtshadertools qtmultimedia qtpositioning qtserialport
 
-      - name: Set up Qt environment
+      - name: Set Qt env
         run: |
-          set -e
           echo "QT_ROOT_DIR=$HOME/Qt/6.5.3/android_x86_64" >> "$GITHUB_ENV"
           echo "QT_HOST_PATH=$HOME/Qt/6.5.3/gcc_64" >> "$GITHUB_ENV"
-          echo "QT_PLUGIN_PATH=$HOME/Qt/6.5.3/android_x86_64/plugins" >> "$GITHUB_ENV"
-          echo "QML2_IMPORT_PATH=$HOME/Qt/6.5.3/android_x86_64/qml" >> "$GITHUB_ENV"
           echo "$HOME/Qt/6.5.3/gcc_64/bin" >> "$GITHUB_PATH"
           echo "$HOME/Qt/6.5.3/android_x86_64/bin" >> "$GITHUB_PATH"
 
-      - name: Verify Qt installation
+      - name: Verify Qt
         run: |
           set -e
           ls -la "$HOME/Qt/6.5.3/"
           test -f "$HOME/Qt/6.5.3/android_x86_64/lib/cmake/Qt6/Qt6Config.cmake"
-          test -f "$HOME/Qt/6.5.3/gcc_64/lib/cmake/Qt6/Qt6Config.cmake"
-          echo "Qt x86_64 Android + host Qt installed"
+          echo "Qt OK"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools platforms;android-33 build-tools;33.0.2 ndk;25.1.8937393'
 
-      - name: Verify Android SDK and pin Qt-compatible NDK
+      - name: Verify Android SDK
         run: |
           set -e
-          command -v sdkmanager
-          sdkmanager --version
-          if [ -z "$ANDROID_SDK_ROOT" ]; then export ANDROID_SDK_ROOT="$ANDROID_HOME"; fi
-          if [ -z "$ANDROID_HOME" ]; then export ANDROID_HOME="$ANDROID_SDK_ROOT"; fi
           export ANDROID_NDK_ROOT="$ANDROID_SDK_ROOT/ndk/25.1.8937393"
-          export ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT"
-          test -d "$ANDROID_SDK_ROOT"
-          test -d "$ANDROID_SDK_ROOT/build-tools/33.0.2"
-          test -d "$ANDROID_NDK_ROOT"
-          test -f "$ANDROID_NDK_ROOT/source.properties"
-          grep "Pkg.Revision" "$ANDROID_NDK_ROOT/source.properties"
           echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT" >> "$GITHUB_ENV"
-          echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME" >> "$GITHUB_ENV"
+          test -d "$ANDROID_NDK_ROOT"
 
       - name: Configure
         run: |
           set -e
           QT_ROOT_DIR="$HOME/Qt/6.5.3/android_x86_64"
           QT_HOST_PATH="$HOME/Qt/6.5.3/gcc_64"
-
           chmod +x "$QT_ROOT_DIR/bin/qt-cmake"
-
-          if [ -z "$ANDROID_SDK_ROOT" ]; then export ANDROID_SDK_ROOT="$ANDROID_HOME"; fi
-          if [ -z "$ANDROID_HOME" ]; then export ANDROID_HOME="$ANDROID_SDK_ROOT"; fi
-          test -d "$ANDROID_SDK_ROOT"
-          test -d "$ANDROID_SDK_ROOT/build-tools/33.0.2"
-
-          echo "Qt Android SDK path: $ANDROID_SDK_ROOT"
-          echo "Qt Android SDK build-tools: $ANDROID_SDK_ROOT/build-tools/33.0.2"
-
-          QT_MODULE_PREFIXES="$(find "$QT_ROOT_DIR/lib/cmake" -mindepth 1 -maxdepth 1 -type d -print | paste -sd ";" -)"
-          export CMAKE_PREFIX_PATH="$QT_ROOT_DIR;$QT_ROOT_DIR/lib/cmake;$QT_ROOT_DIR/lib/cmake/Qt6;$QT_ROOT_DIR/lib/cmake/Qt6Core;$QT_MODULE_PREFIXES${CMAKE_PREFIX_PATH:+;$CMAKE_PREFIX_PATH}"
-          export Qt6_DIR="$QT_ROOT_DIR/lib/cmake/Qt6"
-          export Qt6Core_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Core"
-
-          echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
-          echo "Qt6_DIR=$Qt6_DIR"
-          echo "Qt6Core_DIR=$Qt6Core_DIR"
-
-          test -f "$QT_ROOT_DIR/lib/cmake/Qt6Qml/Qt6QmlConfig.cmake"
-
+          export CMAKE_PREFIX_PATH="$QT_ROOT_DIR"
           "$QT_ROOT_DIR/bin/qt-cmake" -S mrt1 -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DQT_HOST_PATH="$QT_HOST_PATH" \
-            -DQt6_DIR="$QT_ROOT_DIR/lib/cmake/Qt6" \
-            -DQt6Core_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Core" \
-            -DCMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH" \
             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=x86_64 \
             -DANDROID_SDK_ROOT="$ANDROID_SDK_ROOT" \
             -DANDROID_PLATFORM=android-23
 
       - name: Build
-        run: |
-          set -e
-          cmake --build build --config Release --parallel 2
+        run: cmake --build build --config Release --parallel 2
 
-      - name: Sign APK for Android installation
+      - name: Sign APK
         run: |
           set -e
           APK_SIGNER="$ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner"
-          KEYSTORE="$RUNNER_TEMP/mrt1-debug.keystore"
-          test -x "$APK_SIGNER"
-          keytool -genkeypair -v -keystore "$KEYSTORE" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-          APK_COUNT=0
+          KEYSTORE="$RUNNER_TEMP/mrt1.keystore"
+          keytool -genkeypair -v -keystore "$KEYSTORE" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Debug,O=Android,C=US"
+          COUNT=0
           while IFS= read -r apk; do
             echo "Signing $apk"
-            "$APK_SIGNER" sign --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled false --v4-signing-enabled false --ks "$KEYSTORE" --ks-pass pass:android --key-pass pass:android "$apk"
-            "$APK_SIGNER" verify --verbose "$apk"
-            APK_COUNT=$((APK_COUNT + 1))
+            "$APK_SIGNER" sign --ks "$KEYSTORE" --ks-pass pass:android --key-pass pass:android "$apk"
+            COUNT=$((COUNT + 1))
           done < <(find build -type f -name "*.apk" -print)
-          test "$APK_COUNT" -gt 0
-
-      - name: Find APK
-        run: |
-          set -e
-          find build -type f -name "*.apk" -print
-          test -n "$(find build -type f -name '*.apk' -print -quit)"
+          test "$COUNT" -gt 0
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
