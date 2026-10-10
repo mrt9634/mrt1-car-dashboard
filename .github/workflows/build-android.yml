@@ -81,14 +81,37 @@ jobs:
           "$QT_ROOT_DIR/bin/qt-cmake" -S mrt1 -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DQT_HOST_PATH="$QT_HOST_PATH" \
+            -DQT_ANDROID_ABIS=x86_64 \
+            -DANDROID_ABI=x86_64 \
             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
-                        -DANDROID_ABI="x86_64;armeabi-v7a" \
-
             -DANDROID_SDK_ROOT="$ANDROID_SDK_ROOT" \
             -DANDROID_PLATFORM=android-23
 
       - name: Build
         run: cmake --build build --config Release --parallel 2
+
+      # ═══ DEBUG STEP — این خیلی مهمه ═══
+      - name: Debug deployment settings
+        run: |
+          echo "════════════════════════════════════════"
+          echo "1. Deployment settings JSON:"
+          echo "════════════════════════════════════════"
+          cat build/android-MRT1-deployment-settings.json 2>/dev/null || echo "NOT FOUND"
+          echo ""
+          echo "════════════════════════════════════════"
+          echo "2. All .so files in build:"
+          echo "════════════════════════════════════════"
+          find build -name "*.so" -type f 2>/dev/null || echo "NONE"
+          echo ""
+          echo "════════════════════════════════════════"
+          echo "3. android-build/libs directory:"
+          echo "════════════════════════════════════════"
+          ls -laR build/android-build/libs/ 2>/dev/null || echo "NOT FOUND"
+          echo ""
+          echo "════════════════════════════════════════"
+          echo "4. APK contents (unzip -l):"
+          echo "════════════════════════════════════════"
+          find build -name "*.apk" -exec unzip -l {} \; 2>/dev/null | head -40 || echo "No APK"
 
       - name: Sign APK
         run: |
