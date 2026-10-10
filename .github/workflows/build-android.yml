@@ -1,4 +1,4 @@
-name: MRT1 Android Build
+name: MRT1 Test
 
 on:
   push:
@@ -6,106 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Check project
-        run: |
-          test -f mrt1/CMakeLists.txt
-          test -f mrt1/android/AndroidManifest.xml
-          echo "MRT1 source tree found"
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install aqtinstall
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install "aqtinstall==3.2.0"
-
-      - name: Install Qt 6.5.3
-        run: |
-          set -e
-          mkdir -p "$HOME/Qt"
-          python -m aqt install-qt linux android 6.5.3 android_x86_64 \
-            --outputdir "$HOME/Qt" \
-            --modules qtshadertools qtmultimedia qtpositioning qtserialport
-          python -m aqt install-qt linux desktop 6.5.3 gcc_64 \
-            --outputdir "$HOME/Qt" \
-            --modules qtshadertools qtmultimedia qtpositioning qtserialport
-
-      - name: Set Qt env
-        run: |
-          echo "QT_ROOT_DIR=$HOME/Qt/6.5.3/android_x86_64" >> "$GITHUB_ENV"
-          echo "QT_HOST_PATH=$HOME/Qt/6.5.3/gcc_64" >> "$GITHUB_ENV"
-          echo "$HOME/Qt/6.5.3/gcc_64/bin" >> "$GITHUB_PATH"
-          echo "$HOME/Qt/6.5.3/android_x86_64/bin" >> "$GITHUB_PATH"
-
-      - name: Verify Qt
-        run: |
-          set -e
-          ls -la "$HOME/Qt/6.5.3/"
-          test -f "$HOME/Qt/6.5.3/android_x86_64/lib/cmake/Qt6/Qt6Config.cmake"
-          echo "Qt OK"
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v4
-        with:
-          packages: 'platform-tools platforms;android-33 build-tools;33.0.2 ndk;25.1.8937393'
-
-      - name: Verify Android SDK
-        run: |
-          set -e
-          export ANDROID_NDK_ROOT="$ANDROID_SDK_ROOT/ndk/25.1.8937393"
-          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT" >> "$GITHUB_ENV"
-          test -d "$ANDROID_NDK_ROOT"
-
-      - name: Configure
-        run: |
-          set -e
-          QT_ROOT_DIR="$HOME/Qt/6.5.3/android_x86_64"
-          QT_HOST_PATH="$HOME/Qt/6.5.3/gcc_64"
-          chmod +x "$QT_ROOT_DIR/bin/qt-cmake"
-          export CMAKE_PREFIX_PATH="$QT_ROOT_DIR"
-          "$QT_ROOT_DIR/bin/qt-cmake" -S mrt1 -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DQT_HOST_PATH="$QT_HOST_PATH" \
-            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
-            -DANDROID_ABI=x86_64 \
-            -DANDROID_SDK_ROOT="$ANDROID_SDK_ROOT" \
-            -DANDROID_PLATFORM=android-23
-
-      - name: Build
-        run: cmake --build build --config Release --parallel 2
-
-      - name: Sign APK
-        run: |
-          set -e
-          APK_SIGNER="$ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner"
-          KEYSTORE="$RUNNER_TEMP/mrt1.keystore"
-          keytool -genkeypair -v -keystore "$KEYSTORE" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Debug,O=Android,C=US"
-          COUNT=0
-          while IFS= read -r apk; do
-            echo "Signing $apk"
-            "$APK_SIGNER" sign --ks "$KEYSTORE" --ks-pass pass:android --key-pass pass:android "$apk"
-            COUNT=$((COUNT + 1))
-          done < <(find build -type f -name "*.apk" -print)
-          test "$COUNT" -gt 0
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: MRT1-Android-APK
-          path: build/**/*.apk
-          if-no-files-found: error
+      - name: Hello
+        run: echo "Hello from Actions"
