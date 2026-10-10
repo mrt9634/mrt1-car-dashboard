@@ -8,9 +8,9 @@ set(CMAKE_AUTOMOC ON)
 # ─── Force Android ABIs BEFORE find_package() ─────────────────
 # Qt deployment reads QT_ANDROID_ABIS during find_package() and
 # qt_add_executable(). Setting it here ensures .so files are
-# packaged for x86_64 (MemuPlay/Nox) instead of armeabi-v7a.
+# packaged for armeabi-v7a (real head unit / ARM devices).
 if(ANDROID)
-    set(QT_ANDROID_ABIS "x86_64" CACHE STRING "Android ABIs to build" FORCE)
+    set(QT_ANDROID_ABIS "armeabi-v7a" CACHE STRING "Android ABIs to build" FORCE)
 endif()
 
 # ─── Qt6 discovery on Android ─────────────────────────────────
@@ -66,6 +66,7 @@ qt_add_executable(MRT1
     src/CanSignalDecoder.h
     src/LocalMusicManager.h
     src/PhoneManager.h
+    src/RestartManager.h
 )
 
 # ─── QML module ───────────────────────────────────────────────
@@ -76,6 +77,8 @@ qt_add_qml_module(MRT1
     QML_FILES
         qml/Main.qml
         qml/Dashboard.qml
+        qml/LuxuryDashboard.qml
+        qml/LuxuryMusic.qml
         qml/Vehicle.qml
         qml/Settings.qml
         qml/Diagnostics.qml
@@ -110,6 +113,6 @@ if(ANDROID)
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android"
         QT_ANDROID_MIN_SDK_VERSION 23
         QT_ANDROID_TARGET_SDK_VERSION 28
-        QT_ANDROID_ABIS "x86_64"
+        QT_ANDROID_ABIS "armeabi-v7a"
     )
 endif()
