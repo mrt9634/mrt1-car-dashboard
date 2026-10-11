@@ -5,22 +5,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
-# ─── Force Android ABIs BEFORE find_package() ─────────────────
-# Qt deployment reads QT_ANDROID_ABIS during find_package() and
-# qt_add_executable(). Setting it here ensures .so files are
-# packaged for armeabi-v7a (real head unit / ARM devices).
 if(ANDROID)
     set(QT_ANDROID_ABIS "armeabi-v7a" CACHE STRING "Android ABIs to build" FORCE)
 endif()
 
-# ─── Qt6 discovery on Android ─────────────────────────────────
 if(ANDROID AND DEFINED ENV{QT_ROOT_DIR})
     set(MRT1_QT_PREFIX "$ENV{QT_ROOT_DIR}")
     set(MRT1_QT_CMAKE "${MRT1_QT_PREFIX}/lib/cmake")
     set(Qt6_DIR "${MRT1_QT_CMAKE}/Qt6" CACHE PATH "" FORCE)
 
-    # Register every installed Qt6*/CMake package directory explicitly
-    # so find_package() can resolve Core/Gui/Qml/Quick and their deps.
     file(GLOB MRT1_QT_PACKAGE_CONFIGS
         "${MRT1_QT_CMAKE}/Qt6*/Qt6*Config.cmake")
     foreach(MRT1_QT_CONFIG IN LISTS MRT1_QT_PACKAGE_CONFIGS)
@@ -30,7 +23,6 @@ if(ANDROID AND DEFINED ENV{QT_ROOT_DIR})
     endforeach()
 endif()
 
-# ─── Qt modules ───────────────────────────────────────────────
 find_package(Qt6 CONFIG REQUIRED COMPONENTS
     Core
     Gui
@@ -44,7 +36,6 @@ find_package(Qt6 CONFIG REQUIRED COMPONENTS
     Positioning
 )
 
-# ─── Executable ───────────────────────────────────────────────
 qt_add_executable(MRT1
     src/main.cpp
     src/VehicleDataProvider.h
@@ -69,11 +60,12 @@ qt_add_executable(MRT1
     src/RestartManager.h
 )
 
-# ─── QML module ───────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════
+# QML MODULE (بدون NO_CACHEGEN — این باعث مشکل می‌شد)
+# ═══════════════════════════════════════════════════════════════
 qt_add_qml_module(MRT1
     URI MRT1
     VERSION 1.0
-    NO_CACHEGEN
     QML_FILES
         qml/Main.qml
         qml/Dashboard.qml
@@ -93,7 +85,6 @@ qt_add_qml_module(MRT1
         qml/CanDecoder.qml
 )
 
-# ─── Link libraries ───────────────────────────────────────────
 target_link_libraries(MRT1 PRIVATE
     Qt6::Core
     Qt6::Gui
@@ -107,7 +98,6 @@ target_link_libraries(MRT1 PRIVATE
     Qt6::Positioning
 )
 
-# ─── Android target properties ────────────────────────────────
 if(ANDROID)
     set_target_properties(MRT1 PROPERTIES
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android"
