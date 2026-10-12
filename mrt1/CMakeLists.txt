@@ -4,6 +4,7 @@ project(MRT1 VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 if(ANDROID)
     set(QT_ANDROID_ABIS "armeabi-v7a" CACHE STRING "Android ABIs to build" FORCE)
@@ -61,7 +62,32 @@ qt_add_executable(MRT1
 )
 
 # ═══════════════════════════════════════════════════════════════
-# QML MODULE (بدون NO_CACHEGEN — این باعث مشکل می‌شد)
+# EMBED QML FILES DIRECTLY AS RESOURCES (works on Android ARM)
+# ═══════════════════════════════════════════════════════════════
+qt_add_resources(MRT1 "mrt1_qml"
+    PREFIX "/qt/qml/MRT1"
+    BASE "qml"
+    FILES
+        qml/Main.qml
+        qml/Dashboard.qml
+        qml/LuxuryDashboard.qml
+        qml/LuxuryMusic.qml
+        qml/Vehicle.qml
+        qml/Settings.qml
+        qml/Diagnostics.qml
+        qml/AutoMatch.qml
+        qml/Jarvis.qml
+        qml/JarvisSettings.qml
+        qml/Navigation.qml
+        qml/Music.qml
+        qml/Phone.qml
+        qml/OptionalModules.qml
+        qml/CanCapture.qml
+        qml/CanDecoder.qml
+)
+
+# ═══════════════════════════════════════════════════════════════
+# QML MODULE (for type registration, NOT for resources)
 # ═══════════════════════════════════════════════════════════════
 qt_add_qml_module(MRT1
     URI MRT1
